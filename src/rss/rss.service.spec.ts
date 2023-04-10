@@ -56,7 +56,6 @@ describe("RssService", () => {
       const feed_data = await service.fetchURL();
       const res = await service.mergeEntities(feed_data);
       expect(res).toBeDefined();
-      console.log(res);
       expect(res.length).toBeGreaterThan(10);
     });
   });

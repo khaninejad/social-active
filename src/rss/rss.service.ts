@@ -45,5 +45,4 @@ export class RssService {
     });
     return result;
   }
-
 }

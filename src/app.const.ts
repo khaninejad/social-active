@@ -1,0 +1,3 @@
+export const CONTENT_MODEL = "CONTENT_MODEL";
+export const CONTENT_MODE_NAME = "content";
+export const DATABASE_CONNECTION = "DATABASE_CONNECTION";
