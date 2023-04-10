@@ -1,0 +1,63 @@
+import { Test, TestingModule } from "@nestjs/testing";
+import { RssService } from "./rss.service";
+
+describe("RssService", () => {
+  let service: RssService;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [RssService],
+    }).compile();
+
+    service = module.get<RssService>(RssService);
+  });
+
+  it("should be defined", () => {
+    expect(service).toBeDefined();
+  });
+
+  describe("rss fetch", () => {
+    it("should fetch the feed data single feed", async () => {
+      service.setFeedUrls(["https://news.google.com/rss"]);
+      await service.fetchURL();
+      expect(service.feedData[0].entries).toBeDefined();
+      expect(service.feedData[0].entries.length).toBeGreaterThan(0);
+    });
+    it("should fetch the feed data multiple feeds", async () => {
+      service.setFeedUrls([
+        "https://news.google.com/rss",
+        "https://rss.art19.com/apology-line",
+      ]);
+      await service.fetchURL();
+      expect(service.feedData).toBeDefined();
+      expect(service.feedData.length).toBeGreaterThan(0);
+    });
+
+    it("should throw exception if no url provided", async () => {
+      await expect(service.fetchURL()).rejects.toThrowError(
+        "Please provide a URL"
+      );
+    });
+
+    it("should throw exception if no feed exist", async () => {
+      await expect(service.mergeEntities()).rejects.toThrowError(
+        "Feed data is empty"
+      );
+    });
+  });
+
+  describe("mergeFeeds", () => {
+    it("should fetch the feed data multiple feeds", async () => {
+      service.setFeedUrls([
+        "https://news.google.com/rss",
+        "https://rss.art19.com/apology-line",
+        "https://news.google.com/rss",
+      ]);
+      await service.fetchURL();
+      const res = await service.mergeEntities();
+      expect(res).toBeDefined();
+      console.log(res);
+      expect(res.length).toBeGreaterThan(10);
+    });
+  });
+});
