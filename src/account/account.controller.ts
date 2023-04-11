@@ -1,40 +1,54 @@
 import { Controller, Get, Query, Res } from "@nestjs/common";
-import { auth } from "twitter-api-sdk";
+import Client, { auth } from "twitter-api-sdk";
 import { AccountService } from "./account.service";
-import { randomUUID } from "crypto";
+import { CreateAccountDto } from "./dto/create-account.dto";
 
 @Controller("account")
 export class AccountController {
-  private client: auth.OAuth2User;
+  private client: Client;
+  private authClient: auth.OAuth2User;
+  STATE = "my-state";
   constructor(private readonly accountService: AccountService) {
-    this.client = new auth.OAuth2User({
+    this.authClient = new auth.OAuth2User({
       client_id: process.env.CLIENT_ID,
       client_secret: process.env.CLIENT_SECRET,
       callback: process.env.CLIENT_CALLBACK,
       scopes: ["tweet.read", "users.read", "offline.access"],
     });
+    this.client = new Client(this.authClient);
   }
 
   @Get("/")
-  async account(@Res() res): Promise<any> {
+  account(): string {
     return this.accountService.getLoginUrl();
   }
 
   @Get("/login")
   async login(@Res() res): Promise<any> {
-    const authUrl = this.client.generateAuthURL({
+    const authUrl = this.authClient.generateAuthURL({
       code_challenge_method: "s256",
-      state: randomUUID(),
+      state: this.STATE,
     });
     return res.redirect(authUrl);
   }
 
   @Get("/callback")
-  async callback(@Query("code") code: string): Promise<any> {
+  async callback(
+    @Query("code") code: string,
+    @Query("state") state: string
+  ): Promise<string> {
     try {
-      return await this.client.requestAccessToken(code);
+      if (state !== this.STATE) throw new Error("State is not valid");
+      const token = await this.authClient.requestAccessToken(code as string);
+      const my_user = await this.client.users.findMyUser();
+      this.accountService.create({
+        account: my_user.data.username,
+        ...(token.token as CreateAccountDto),
+      });
+      return JSON.stringify(my_user);
     } catch (error) {
       console.error(error);
+      throw error;
     }
   }
 }
