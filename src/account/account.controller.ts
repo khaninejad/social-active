@@ -1,26 +1,30 @@
 import { Controller, Get, Query, Res } from "@nestjs/common";
-import { AppService } from "./app.service";
 import { auth } from "twitter-api-sdk";
+import { AccountService } from "./account.service";
+import { randomUUID } from "crypto";
 
-@Controller()
-export class AppController {
+@Controller("account")
+export class AccountController {
   private client: auth.OAuth2User;
-  constructor(private readonly appService: AppService) {
+  constructor(private readonly accountService: AccountService) {
     this.client = new auth.OAuth2User({
-      client_id: process.env.CLIENT_ID || "RE1KS0VCelhQNnozWU1pQXFsOXc6MTpjaQ",
-      client_secret:
-        process.env.CLIENT_SECRET ||
-        "zZwg7jKI18oYRCVgEJFiQqARdba6nCB2S9hT_oyhK6TFa9ts-9",
-      callback: process.env.CLIENT_CALLBACK || "http://127.0.0.1:3000/callback",
+      client_id: process.env.CLIENT_ID,
+      client_secret: process.env.CLIENT_SECRET,
+      callback: process.env.CLIENT_CALLBACK,
       scopes: ["tweet.read", "users.read", "offline.access"],
     });
+  }
+
+  @Get("/")
+  async account(@Res() res): Promise<any> {
+    return this.accountService.getLoginUrl();
   }
 
   @Get("/login")
   async login(@Res() res): Promise<any> {
     const authUrl = this.client.generateAuthURL({
       code_challenge_method: "s256",
-      state: "radm",
+      state: randomUUID(),
     });
     return res.redirect(authUrl);
   }
