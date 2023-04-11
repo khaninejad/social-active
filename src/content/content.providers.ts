@@ -4,7 +4,7 @@ import {
   CONTENT_MODEL_NAME,
   DATABASE_CONNECTION,
 } from "src/app.const";
-import { ContentSchema } from "./schema/content.schema";
+import ContentSchema from "./schema/content.schema";
 
 export const contentsProviders = [
   {

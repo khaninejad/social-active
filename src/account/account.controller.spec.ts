@@ -35,7 +35,7 @@ describe("AccountController", () => {
       const result = "loginUrl";
       jest.spyOn(service, "getLoginUrl").mockImplementation(() => result);
 
-      expect(await controller.account()).toBe(result);
+      expect(controller.account()).toBe(result);
     });
   });
 

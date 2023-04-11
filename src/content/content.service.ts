@@ -19,4 +19,10 @@ export class ContentService {
   async findAll(): Promise<Content[]> {
     return this.contentModel.find().exec();
   }
+
+  async createMany(rssFeeds: CreateContentDto[]): Promise<any> {
+    const createdContent = await this.contentModel.insertMany(rssFeeds);
+    console.log(createdContent);
+    return createdContent;
+  }
 }

@@ -45,4 +45,10 @@ export class RssService {
     });
     return result;
   }
+
+  async fetch(feeds: string[]): Promise<FeedEntry[]> {
+    this.setFeedUrls(feeds);
+    const feedData = await this.fetchURL();
+    return this.mergeEntities(feedData);
+  }
 }

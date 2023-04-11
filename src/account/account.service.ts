@@ -47,4 +47,8 @@ export class AccountService {
     );
     return updated;
   }
+
+  async getAll(): Promise<Account[]> {
+    return this.accountModel.find().exec();
+  }
 }
