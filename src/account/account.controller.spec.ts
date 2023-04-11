@@ -1,6 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { AccountController } from "./account.controller";
 import { AccountService } from "./account.service";
+import { Account } from "./interfaces/account.interface";
 
 describe("AccountController", () => {
   let controller: AccountController;
@@ -15,6 +16,8 @@ describe("AccountController", () => {
           useValue: {
             getLoginUrl: jest.fn(),
             create: jest.fn(),
+            updateFeeds: jest.fn(),
+            updateConfig: jest.fn(),
           },
         },
       ],
@@ -97,6 +100,49 @@ describe("AccountController", () => {
       await expect(controller.callback(code, invalidState)).rejects.toThrow(
         "State is not valid"
       );
+    });
+  });
+
+  describe("Feeds", () => {
+    it("should update feed", async () => {
+      const account = {
+        account: "account1",
+        access_token: "random_token",
+        refresh_token: "random_refresh_account",
+        expires_at: "1681219898317",
+        feeds: ["http://google.com"],
+      };
+      jest.spyOn(service, "updateFeeds").mockResolvedValue(account as Account);
+
+      const req = {
+        account: "account1",
+        feeds: ["https://google.com"],
+      };
+      const res = await controller.feeds(req);
+
+      expect(res).toBe(account);
+    });
+  });
+
+  describe("Config", () => {
+    it("should update feed", async () => {
+      const account = {
+        account: "account1",
+        access_token: "random_token",
+        refresh_token: "random_refresh_account",
+        expires_at: "1681219898317",
+        feeds: [],
+        config: { reminder: "2h" },
+      };
+      jest.spyOn(service, "updateConfig").mockResolvedValue(account as Account);
+
+      const req = {
+        account: "account1",
+        config: { reminder: "2h" },
+      };
+      const res = await controller.config(req);
+
+      expect(res).toBe(account);
     });
   });
 });

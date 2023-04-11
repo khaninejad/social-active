@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Res } from "@nestjs/common";
+import { Controller, Get, Post, Query, Req, Res } from "@nestjs/common";
 import Client, { auth } from "twitter-api-sdk";
 import { AccountService } from "./account.service";
 import { CreateAccountDto } from "./dto/create-account.dto";
@@ -50,5 +50,23 @@ export class AccountController {
       console.error(error);
       throw error;
     }
+  }
+
+  @Post("/feeds")
+  async feeds(@Req() req): Promise<any> {
+    const res = this.accountService.updateFeeds({
+      account: req.username,
+      feeds: [req.feeds],
+    });
+    return res;
+  }
+
+  @Post("/config")
+  async config(@Req() req): Promise<any> {
+    const res = this.accountService.updateConfig({
+      account: req.username,
+      config: { reminder: req.reminder },
+    });
+    return res;
   }
 }

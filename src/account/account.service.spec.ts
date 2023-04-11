@@ -4,6 +4,8 @@ import { Account } from "./interfaces/account.interface";
 import { Model } from "mongoose";
 import { CreateAccountDto } from "./dto/create-account.dto";
 import { ACCOUNT_MODEL } from "../app.const";
+import { UpdateAccountFeedDto } from "./dto/update-account-feed.dto";
+import { UpdateAccountConfigDto } from "./dto/update-account-config.dto";
 
 const mockAccount: CreateAccountDto = {
   account: "account1",
@@ -26,7 +28,7 @@ describe("AccountService", () => {
             new: jest.fn().mockResolvedValue(mockAccount),
             constructor: jest.fn().mockResolvedValue(mockAccount),
             find: jest.fn(),
-            create: jest.fn(),
+            findOneAndUpdate: jest.fn(),
             save: jest.fn(),
             exec: jest.fn(),
           },
@@ -43,7 +45,9 @@ describe("AccountService", () => {
   });
 
   it("should insert a new account", async () => {
-    jest.spyOn(model, "create").mockResolvedValueOnce(mockAccount as any);
+    jest
+      .spyOn(model, "findOneAndUpdate")
+      .mockResolvedValueOnce(mockAccount as any);
     const newContent = await service.create({
       account: "account1",
       access_token: "random_token",
@@ -51,5 +55,27 @@ describe("AccountService", () => {
       expires_at: 1681219898317,
     } as CreateAccountDto);
     expect(newContent).toEqual(mockAccount);
+  });
+
+  it("should update feeds of account", async () => {
+    jest
+      .spyOn(model, "findOneAndUpdate")
+      .mockResolvedValueOnce(mockAccount as any);
+    const updated = await service.updateFeeds({
+      account: "account1",
+      feeds: ["http://google.com"],
+    } as UpdateAccountFeedDto);
+    expect(updated).toEqual(mockAccount);
+  });
+
+  it("should update config of account", async () => {
+    jest
+      .spyOn(model, "findOneAndUpdate")
+      .mockResolvedValueOnce(mockAccount as any);
+    const updated = await service.updateConfig({
+      account: "account1",
+      config: { reminder: "2h" },
+    } as UpdateAccountConfigDto);
+    expect(updated).toEqual(mockAccount);
   });
 });
