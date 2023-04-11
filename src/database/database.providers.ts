@@ -4,6 +4,6 @@ export const databaseProviders = [
   {
     provide: "DATABASE_CONNECTION",
     useFactory: (): Promise<typeof mongoose> =>
-      mongoose.connect("mongodb://mongoadmin:secret@mongo:27017/social-active"),
+      mongoose.connect(process.env.MONGODB_CONNECTION_STRING),
   },
 ];
