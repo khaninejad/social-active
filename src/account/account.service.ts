@@ -16,7 +16,11 @@ export class AccountService {
   }
 
   async create(createAccountDto: CreateAccountDto): Promise<Account> {
-    const createdAccount = await this.accountModel.create(createAccountDto);
+    const createdAccount = this.accountModel.findOneAndUpdate(
+      { account: createAccountDto.account },
+      createAccountDto,
+      { upsert: true }
+    );
     return createdAccount;
   }
 }

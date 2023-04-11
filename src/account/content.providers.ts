@@ -4,7 +4,7 @@ import {
   ACCOUNT_MODEL_NAME,
   DATABASE_CONNECTION,
 } from "src/app.const";
-import { AccountSchema } from "./schema/content.schema";
+import { AccountSchema } from "./schema/account.schema";
 
 export const accountsProviders = [
   {
