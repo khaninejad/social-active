@@ -12,8 +12,8 @@ export class ContentService {
   ) {}
 
   async create(createContentDto: CreateContentDto): Promise<Content> {
-    const createdContent = new this.contentModel(createContentDto);
-    return createdContent.save();
+    const createdContent = await this.contentModel.create(createContentDto);
+    return createdContent;
   }
 
   async findAll(): Promise<Content[]> {
