@@ -41,6 +41,7 @@ export class TaskService {
           published: new Date(data.published),
           title: data.title,
           link: data.link,
+          created_at: new Date().toISOString(),
         } as unknown as CreateContentDto;
       });
       this.contentService.createMany(mapped);

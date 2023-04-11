@@ -4,4 +4,5 @@ export interface CreateContentDto {
   link: string;
   description: string;
   published: string;
+  created_at: Date;
 }

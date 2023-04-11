@@ -21,8 +21,20 @@ export class ContentService {
   }
 
   async createMany(rssFeeds: CreateContentDto[]): Promise<any> {
-    const createdContent = await this.contentModel.insertMany(rssFeeds);
-    console.log(createdContent);
-    return createdContent;
-  }
+    try {
+      const options = { ordered: false };
+      const createdContent = await this.contentModel.insertMany(
+        rssFeeds,
+        options
+      );
+      console.log(createdContent);
+      return createdContent;
+    } catch (error) {
+      if (error.code === 11000) {
+        console.log("Duplicate key error:", error.keyValue);
+      } else {
+        throw error;
+      }
+    }
+}
 }
