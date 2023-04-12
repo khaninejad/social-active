@@ -17,7 +17,7 @@ export class ContentUpdatedListener {
     const contents = await this.contentService.getContentsByAccountNameForCrawl(
       event.name
     );
-    if (contents) {
+    if (contents[0]) {
       const crawled = await this.crawlerService.crawl(contents[0].link);
       const updated = await this.contentService.updateCrawl({
         id: contents[0].id,
@@ -29,6 +29,7 @@ export class ContentUpdatedListener {
               image: crawled.image,
               keyword: crawled.keyword,
               raw_text: crawled.raw_text,
+              crawl_date: new Date(),
             }
           : {
               url: "",
@@ -37,10 +38,11 @@ export class ContentUpdatedListener {
               image: "",
               keyword: "",
               raw_text: "",
+              crawl_date: new Date(),
             },
       });
       Logger.log(`Content Updated`);
     }
-    Logger.log(`Listener Finished}`);
+    Logger.log(`Listener Finished`);
   }
 }
