@@ -27,7 +27,6 @@ export class ContentService {
         rssFeeds,
         options
       );
-      console.log(createdContent);
       return createdContent;
     } catch (error) {
       if (error.code === 11000) {
@@ -36,5 +35,5 @@ export class ContentService {
         throw error;
       }
     }
-}
+  }
 }

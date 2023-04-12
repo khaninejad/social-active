@@ -5,6 +5,8 @@ import { AccountModule } from "./account/account.module";
 import { DatabaseModule } from "./database/database.module";
 import { ScheduleModule } from "@nestjs/schedule";
 import { TaskService } from "./task/task.service";
+import { EventEmitterModule } from "@nestjs/event-emitter";
+import { CrawlerModule } from "./crawler/crawler.module";
 
 @Module({
   imports: [
@@ -13,6 +15,8 @@ import { TaskService } from "./task/task.service";
     ContentModule,
     AccountModule,
     ScheduleModule.forRoot(),
+    EventEmitterModule.forRoot(),
+    CrawlerModule,
   ],
   controllers: [],
   providers: [TaskService],
