@@ -19,7 +19,7 @@ export class ContentUpdatedListener {
     );
     if (contents[0]) {
       const crawled = await this.crawlerService.crawl(contents[0].link);
-      const updated = await this.contentService.updateCrawl({
+      await this.contentService.updateCrawl({
         id: contents[0].id,
         crawl: crawled
           ? {

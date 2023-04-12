@@ -8,7 +8,7 @@ export class CrawlerService {
   async crawl(url: string): Promise<CrawlerDataDto> {
     try {
       const ultimateUrl = await this.getFinalUrl(url);
-  
+
       const htmlResponse = await axios.get(ultimateUrl, {
         headers: {
           "User-Agent":
