@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Query, Req, Res } from "@nestjs/common";
+import { Controller, Get, Logger, Post, Query, Req, Res } from "@nestjs/common";
 import Client, { auth } from "twitter-api-sdk";
 import { AccountService } from "./account.service";
 import { CreateAccountDto } from "./dto/create-account.dto";
@@ -47,7 +47,7 @@ export class AccountController {
       });
       return JSON.stringify(my_user);
     } catch (error) {
-      console.error(error);
+      Logger.debug(error);
       throw error;
     }
   }

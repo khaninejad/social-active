@@ -6,7 +6,7 @@ import { RssService } from "../rss/rss.service";
 import { ContentService } from "../content/content.service";
 import { CreateContentDto } from "../content/dto/create-content.dto";
 import { EventEmitter2 } from "@nestjs/event-emitter";
-import { ContentUpdatedEvent } from "src/events/content-updated.event";
+import { ContentUpdatedEvent } from "../events/content-updated.event";
 
 @Injectable()
 export class TaskService {
