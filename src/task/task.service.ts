@@ -31,7 +31,6 @@ export class TaskService {
     const job = new CronJob(this.getCronString(time), async () => {
       this.logger.warn(`time (${time}) for job ${name} to run!`);
       const rssData = await this.rssService.fetch(feeds);
-      this.eventEmitter.emit("content.updated", new ContentUpdatedEvent(name));
       const mapped = rssData.map((data) => {
         return {
           account: name,
@@ -44,6 +43,7 @@ export class TaskService {
         } as unknown as CreateContentDto;
       });
       this.contentService.createMany(mapped);
+      this.eventEmitter.emit("content.updated", new ContentUpdatedEvent(name));
       this.logger.log(rssData.length);
     });
 
