@@ -20,7 +20,6 @@ export class CrawlerService {
         image: $('meta[property="og:image"]').attr("content"),
         raw_text: $("body :not(script):not(style)").text().replace(/\s+/g, " "),
       };
-      console.error(`${JSON.stringify(crawled_data)} crawled`);
       return crawled_data;
     } catch (error) {
       Logger.error(error);

@@ -19,19 +19,27 @@ export class ContentUpdatedListener {
     );
     if (contents) {
       const crawled = await this.crawlerService.crawl(contents[0].link);
-      Logger.debug(contents[0]);
       const updated = await this.contentService.updateCrawl({
         id: contents[0].id,
-        crawl: {
-          url: crawled.url ?? contents[0].link,
-          title: crawled.title,
-          description: crawled.description,
-          image: crawled.image,
-          keyword: crawled.keyword,
-          raw_text: crawled.raw_text,
-        },
+        crawl: crawled
+          ? {
+              url: crawled.url,
+              title: crawled.title,
+              description: crawled.description,
+              image: crawled.image,
+              keyword: crawled.keyword,
+              raw_text: crawled.raw_text,
+            }
+          : {
+              url: "",
+              title: "",
+              description: "",
+              image: "",
+              keyword: "",
+              raw_text: "",
+            },
       });
-      Logger.log(`Content Updated ${JSON.stringify(updated)}`);
+      Logger.log(`Content Updated`);
     }
     Logger.log(`Listener Finished}`);
   }
