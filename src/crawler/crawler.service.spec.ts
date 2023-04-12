@@ -18,8 +18,7 @@ describe("CrawlerService", () => {
   });
 
   it("should crawl a web page and extract data", async () => {
-    const url =
-      "https://news.google.com/rss/articles/CBMiVmh0dHBzOi8vd3d3LmNubi5jb20vMjAyMy8wNC8xMS91cy9sb3Vpc3ZpbGxlLWtlbnR1Y2t5LWJhbmstc2hvb3RpbmctdHVlc2RheS9pbmRleC5odG1s0gFaaHR0cHM6Ly9hbXAuY25uLmNvbS9jbm4vMjAyMy8wNC8xMS91cy9sb3Vpc3ZpbGxlLWtlbnR1Y2t5LWJhbmstc2hvb3RpbmctdHVlc2RheS9pbmRleC5odG1s?oc=5";
+    const url = "https://bing.com";
 
     const result: CrawlerDataDto = await service.crawl(url);
 
