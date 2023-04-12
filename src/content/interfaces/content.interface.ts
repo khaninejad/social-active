@@ -13,5 +13,6 @@ export interface Content extends Document {
     keyword: string;
     image: string;
     raw_text: string;
+    crawl_date: Date;
   };
 }

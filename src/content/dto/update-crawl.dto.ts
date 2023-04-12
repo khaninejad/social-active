@@ -7,5 +7,6 @@ export interface UpdateCrawlDto {
     keyword: string;
     image: string;
     raw_text: string;
+    crawl_date: Date;
   };
 }
