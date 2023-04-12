@@ -6,4 +6,12 @@ export interface Content extends Document {
   readonly link: string;
   readonly description: string;
   readonly published: Date;
+  readonly crawl: {
+    url: string;
+    title: string;
+    description: string;
+    keyword: string;
+    image: string;
+    raw_text: string;
+  };
 }
