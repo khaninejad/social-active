@@ -1,14 +1,16 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { OnEvent } from "@nestjs/event-emitter";
+import { EventEmitter2, OnEvent } from "@nestjs/event-emitter";
 import { ContentUpdatedEvent } from "../../events/content-updated.event";
 import { CrawlerService } from "../crawler.service";
-import { ContentService } from "src/content/content.service";
+import { ContentService } from "../../content/content.service";
+import { CrawlFinishedEvent } from "../../events/crawl-finished.event";
 
 @Injectable()
 export class ContentUpdatedListener {
   constructor(
     private readonly crawlerService: CrawlerService,
-    private readonly contentService: ContentService
+    private readonly contentService: ContentService,
+    private eventEmitter: EventEmitter2
   ) {}
 
   @OnEvent("content.updated")
@@ -42,6 +44,10 @@ export class ContentUpdatedListener {
             },
       });
       Logger.log(`Content Updated`);
+      this.eventEmitter.emit(
+        "crawl.finished",
+        new CrawlFinishedEvent(contents[0].id)
+      );
     }
     Logger.log(`Listener Finished`);
   }

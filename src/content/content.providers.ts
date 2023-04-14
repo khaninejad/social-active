@@ -3,7 +3,7 @@ import {
   CONTENT_MODEL,
   CONTENT_MODEL_NAME,
   DATABASE_CONNECTION,
-} from "src/app.const";
+} from "../app.const";
 import ContentSchema from "./schema/content.schema";
 
 export const contentsProviders = [

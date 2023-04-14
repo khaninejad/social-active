@@ -3,7 +3,7 @@ import {
   ACCOUNT_MODEL,
   ACCOUNT_MODEL_NAME,
   DATABASE_CONNECTION,
-} from "src/app.const";
+} from "../app.const";
 import { AccountSchema } from "./schema/account.schema";
 
 export const accountsProviders = [

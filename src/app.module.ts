@@ -7,6 +7,7 @@ import { ScheduleModule } from "@nestjs/schedule";
 import { TaskService } from "./task/task.service";
 import { EventEmitterModule } from "@nestjs/event-emitter";
 import { CrawlerModule } from "./crawler/crawler.module";
+import { WordpressModule } from "./wordpress/wordpress.module";
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { CrawlerModule } from "./crawler/crawler.module";
     ScheduleModule.forRoot(),
     EventEmitterModule.forRoot(),
     CrawlerModule,
+    WordpressModule,
   ],
   controllers: [],
   providers: [TaskService],

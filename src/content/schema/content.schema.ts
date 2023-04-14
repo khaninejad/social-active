@@ -8,6 +8,7 @@ const ContentSchema = new mongoose.Schema({
   published: String,
   created_at: Date,
   crawl: Object,
+  blog: Object,
 });
 
 ContentSchema.index({ account: 1, title: 1, link: 1 }, { unique: true });

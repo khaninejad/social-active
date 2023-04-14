@@ -15,4 +15,9 @@ export interface Content extends Document {
     raw_text: string;
     crawl_date: Date;
   };
+  readonly blog: {
+    id: string;
+    title: string;
+    date: Date;
+  };
 }
