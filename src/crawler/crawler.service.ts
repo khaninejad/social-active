@@ -23,7 +23,7 @@ export class CrawlerService {
         description: $('meta[name="description"]').attr("content"),
         keyword: $('meta[name="keywords"]').attr("content"),
         image: $('meta[property="og:image"]').attr("content"),
-        raw_text: $("body :not(script):not(style)").text().replace(/\s+/g, " "),
+        raw_text: $("p").text().replace(/\s+/g, " "),
       };
       return crawled_data;
     } catch (error) {
