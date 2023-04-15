@@ -69,7 +69,7 @@ describe("WordpressService", () => {
     const image =
       "https://dragplus.com/wp-content/uploads/2023/04/Taylor-Swift-Arlington-eras-2023-billboard-1548.jpg";
 
-    const result = await wordpressService.uploadMedia(image);
+    const result = await wordpressService.uploadMedia(image, "title");
 
     expect(result).toBe("ok");
   });

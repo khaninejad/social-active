@@ -8,6 +8,7 @@ import { TaskService } from "./task/task.service";
 import { EventEmitterModule } from "@nestjs/event-emitter";
 import { CrawlerModule } from "./crawler/crawler.module";
 import { WordpressModule } from "./wordpress/wordpress.module";
+import { OpenaiModule } from "./openai/openai.module";
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { WordpressModule } from "./wordpress/wordpress.module";
     EventEmitterModule.forRoot(),
     CrawlerModule,
     WordpressModule,
+    OpenaiModule,
   ],
   controllers: [],
   providers: [TaskService],

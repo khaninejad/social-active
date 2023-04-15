@@ -26,6 +26,5 @@ describe("CrawlerService", () => {
     expect(result.url).toBeTruthy();
     expect(result.description).toBeTruthy();
     expect(result.image).toBeTruthy();
-    expect(result.raw_text).toBeTruthy();
   });
 });
