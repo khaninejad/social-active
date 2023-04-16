@@ -14,8 +14,10 @@ ruleInstance.addRole(
 );
 ruleInstance.addRole(`our output should be like with html tags in the body for SEO purpose in json format
 {
-  "title": "the new content title "
-  "body": "the new rewritten content " // at least 1000 word
+  "title": "the new content title ",
+  "category": "the new category",
+  "tags": "the new tags",
+  "body": "the new rewritten content " // min 500 word, separate paragraphs with html <p> tag, no empty space between paragraphs
 }`);
 ruleInstance.addRole(
   "include source of the news in new content we got this content in new content body at to the content  of content use content_source and content_source_url "

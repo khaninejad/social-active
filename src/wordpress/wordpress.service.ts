@@ -56,7 +56,6 @@ export class WordpressService {
         });
       return uploadedImage;
     } catch (error) {
-      console.error(error);
       Logger.error(error);
     }
   }

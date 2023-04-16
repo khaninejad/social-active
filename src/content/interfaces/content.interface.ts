@@ -20,4 +20,10 @@ export interface Content extends Document {
     title: string;
     date: Date;
   };
+  readonly generated: {
+    title: string;
+    body: string;
+    category: string;
+    tags: string;
+  };
 }

@@ -17,14 +17,23 @@ export class CrawlFinishedListener {
     Logger.log(`Listener started handleCrawlFinishedEvent ${event}`);
     const content = await this.contentService.getContentById(event.id);
 
-    if (content) {
-      const rules = ruleInstance.getRoles();
-      const res = await this.openAIService.generateText(
-        ruleInstance.getRoles()
-      );
-      Logger.debug(rules);
-      Logger.debug(JSON.stringify(res));
-      Logger.log(`Content generated for ${res} post`);
+    try {
+      if (content) {
+        const rules = ruleInstance.getRoles();
+        const res = await this.openAIService.generateText(rules);
+        Logger.log(`Content generated for '${JSON.stringify(res)}' post`);
+        await this.contentService.updateGenerated({
+          id: content.id,
+          generated: {
+            title: res.title,
+            body: res.body,
+            category: res.category,
+            tags: res.tags,
+          },
+        });
+      }
+    } catch (error) {
+      Logger.error(error);
     }
     Logger.log(`Listener Finished`);
   }

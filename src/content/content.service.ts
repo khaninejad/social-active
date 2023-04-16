@@ -5,6 +5,7 @@ import { Model, ObjectId } from "mongoose";
 import { CreateContentDto } from "./dto/create-content.dto";
 import { UpdateCrawlDto } from "./dto/update-crawl.dto";
 import { UpdateBlogDto } from "./dto/update-blog.dto";
+import { UpdateGeneratedDto } from "./dto/update-generated.dto";
 
 @Injectable()
 export class ContentService {
@@ -65,6 +66,18 @@ export class ContentService {
     const updated = this.contentModel.findByIdAndUpdate(
       updateBlogDto.id,
       { blog: updateBlogDto.blog },
+      { upsert: true }
+    );
+    return updated;
+  }
+
+  async updateGenerated(
+    updateGeneratedDto: UpdateGeneratedDto
+  ): Promise<Content> {
+    Logger.debug(updateGeneratedDto.id);
+    const updated = this.contentModel.findByIdAndUpdate(
+      updateGeneratedDto.id,
+      { blog: updateGeneratedDto.generated },
       { upsert: true }
     );
     return updated;
