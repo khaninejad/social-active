@@ -79,8 +79,8 @@ describe("WordpressService", () => {
       title,
       content,
       image,
-      "category",
-      "tags"
+      ["category"],
+      ["tags"]
     );
 
     expect(mockCreate).toHaveBeenCalledWith({
@@ -88,7 +88,7 @@ describe("WordpressService", () => {
       content,
       categories: [],
       tags: [],
-      status: "private",
+      status: "publish",
     });
     expect(result.id).toEqual(1);
     expect(result.title).toEqual(title);

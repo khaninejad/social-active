@@ -22,18 +22,22 @@ export class WordpressService {
     tags: string[]
   ): Promise<WordpressResponse> {
     try {
-      const media = await this.uploadMedia(media_url, title);
-      const categoryIds = await this.getCategoryIds(categories);
-      const tagIds = await this.getTagIds(tags);
+      const [uploadedMedia, categoryIds, tagIds] = await Promise.all([
+        this.uploadMedia(media_url, title),
+        this.getCategoryIds(categories),
+        this.getTagIds(tags),
+      ]);
+
       Logger.error(
         `uploaded media ${
-          media?.id
+          uploadedMedia?.id
         } and url ${media_url} tags: ${JSON.stringify(tagIds)}`
       );
+
       const res = await this.wp.posts().create({
         title,
         content,
-        featured_media: media?.id ?? undefined,
+        featured_media: uploadedMedia?.id ?? undefined,
         categories: categoryIds ?? undefined,
         tags: tagIds ?? undefined,
         status: "publish",
@@ -65,7 +69,7 @@ export class WordpressService {
     const categoryIds: number[] = [];
 
     try {
-      for (const name of categoryNames) {
+      const promises = categoryNames.map(async (name) => {
         let category = await this.wp
           .categories()
           .slug(this.titleToSlug(name))
@@ -78,7 +82,8 @@ export class WordpressService {
           });
         }
         categoryIds.push(category[0].id);
-      }
+      });
+      await Promise.all(promises);
     } catch (error) {
       Logger.error(error);
     }
@@ -90,7 +95,7 @@ export class WordpressService {
     const tagIds: number[] = [];
 
     try {
-      for (const tagItem of tagNames) {
+      const promises = tagNames.map(async (tagItem) => {
         const tag = await this.wp.tags().slug(this.titleToSlug(tagItem));
         if (tag.length === 0) {
           const newTag = await this.wp.tags().create({
@@ -101,7 +106,8 @@ export class WordpressService {
         } else {
           tagIds.push(tag[0].id);
         }
-      }
+      });
+      await Promise.all(promises);
     } catch (error) {
       Logger.error(error);
     }

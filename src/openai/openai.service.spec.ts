@@ -27,7 +27,7 @@ describe("OpenAIService", () => {
         model: "text-davinci-003",
         prompt,
         n: 1,
-        max_tokens: 700,
+        max_tokens: 1024,
       });
       expect(generatedText).toEqual({ hello: "world" });
     });

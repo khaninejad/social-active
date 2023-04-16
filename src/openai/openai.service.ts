@@ -19,7 +19,7 @@ export class OpenAIService {
         model: "text-davinci-003",
         prompt,
         n: 1,
-        max_tokens: 700,
+        max_tokens: 1024,
       });
       const generated_content = completions.data.choices[0].text.trim();
       const clean_content = this.cleanString(
