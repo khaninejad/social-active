@@ -1,6 +1,5 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import * as WPAPI from "wpapi";
-import axios from "axios";
 import { WordpressService } from "./wordpress.service";
 import { ContentService } from "../content/content.service";
 import { CONTENT_MODEL } from "../app.const";
@@ -76,7 +75,13 @@ describe("WordpressService", () => {
     const content = "This is a test post.";
     const image = "http://image.com/image.jpg";
 
-    const result = await wordpressService.createPost(title, content, image);
+    const result = await wordpressService.createPost(
+      title,
+      content,
+      image,
+      "category",
+      "tags"
+    );
 
     expect(mockCreate).toHaveBeenCalledWith({
       title,
@@ -88,28 +93,4 @@ describe("WordpressService", () => {
     expect(result.id).toEqual(1);
     expect(result.title).toEqual(title);
   });
-
-  // it("should upload media", async () => {
-
-  //   const mockGet = jest.fn().mockResolvedValue({ data: Buffer.from("test") });
-  //   jest.spyOn(axios, "get").mockImplementation(mockGet);
-
-  //   const mockCreate = jest
-  //     .fn()
-  //     .mockResolvedValue({ id: 1, title: "Test Image" });
-  //   const mockFile = jest.fn().mockReturnThis();
-  //   const mockMedia = jest.fn().mockReturnValue({ file: mockFile });
-  //   const wpapiMock = jest
-  //     .fn()
-  //     .mockReturnValue({ media: mockMedia, create: mockCreate });
-
-  //   (WPAPI as jest.Mock).mockImplementation(wpapiMock);
-
-  //   const image =
-  //     "https://dragplus.com/wp-content/uploads/2023/04/Taylor-Swift-Arlington-eras-2023-billboard-1548.jpg";
-
-  //   const result = await service.uploadMedia(image, "title");
-
-  //   expect(result).toBe("ok");
-  // });
 });

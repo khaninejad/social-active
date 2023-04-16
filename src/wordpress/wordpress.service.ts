@@ -17,12 +17,14 @@ export class WordpressService {
   async createPost(
     title: string,
     content: string,
-    media_url: string
+    media_url: string,
+    categories: string[],
+    tags: string[]
   ): Promise<WordpressResponse> {
     try {
       const media = await this.uploadMedia(media_url, title);
-      const categoryIds = await this.getCategoryIds(["test", "hello world"]);
-      const tagIds = await this.getTagIds(["tags", "test tags", "new tags"]);
+      const categoryIds = await this.getCategoryIds(categories);
+      const tagIds = await this.getTagIds(tags);
       Logger.error(
         `uploaded media ${
           media?.id
@@ -34,7 +36,7 @@ export class WordpressService {
         featured_media: media?.id ?? undefined,
         categories: categoryIds ?? undefined,
         tags: tagIds ?? undefined,
-        status: "private",
+        status: "publish",
       });
       return res as WordpressResponse;
     } catch (error) {

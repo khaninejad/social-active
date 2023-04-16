@@ -22,13 +22,21 @@ export class OpenAIService {
         max_tokens: 700,
       });
       const generated_content = completions.data.choices[0].text.trim();
-      Logger.warn(`raw data ${generated_content}`);
-      const extracted = this.extractJson(generated_content);
+      const clean_content = this.cleanString(
+        this.escapeUrlsInJsonSchemaString(generated_content)
+      );
+      Logger.warn(`raw data ${clean_content}`);
+      const extracted = this.extractJson(clean_content);
       return extracted;
     } catch (error) {
-      Logger.error(error);
+      Logger.error(`generateText error ${error}`);
     }
   }
+
+  cleanString(str: string): string {
+    return str.replace(/[\n\t]/g, "").trim();
+  }
+
   extractJson(str: string): GeneratedBlogDto {
     try {
       const start = str.indexOf("{");
@@ -45,5 +53,13 @@ export class OpenAIService {
       Logger.error(error);
       throw new Error("not contain valid json data");
     }
+  }
+  escapeUrlsInJsonSchemaString(input: string): string {
+    const regex = /<a\s+(?:[^>]*?\s+)?href=(["'])(.*?)\1/gi;
+    const escapedBody = input.replace(regex, function (match, quote, url) {
+      const escapedUrl = url.replace(/"/g, '\\"');
+      return `<a href=\\"${escapedUrl}\\">`;
+    });
+    return escapedBody;
   }
 }

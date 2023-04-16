@@ -15,39 +15,45 @@ export class ContentUpdatedListener {
 
   @OnEvent("content.updated")
   async handleContentUpdatedEvent(event: ContentUpdatedEvent) {
-    Logger.log(`Listener started ${event}`);
-    const contents = await this.contentService.getContentsByAccountNameForCrawl(
-      event.name
+    Logger.log(
+      `handleContentUpdatedEvent Listener started ${JSON.stringify(event)}`
     );
-    if (contents[0]) {
-      const crawled = await this.crawlerService.crawl(contents[0].link);
-      await this.contentService.updateCrawl({
-        id: contents[0].id,
-        crawl: crawled
-          ? {
-              url: crawled.url,
-              title: crawled.title,
-              description: crawled.description,
-              image: crawled.image,
-              keyword: crawled.keyword,
-              raw_text: crawled.raw_text,
-              crawl_date: new Date(),
-            }
-          : {
-              url: "",
-              title: "",
-              description: "",
-              image: "",
-              keyword: "",
-              raw_text: "",
-              crawl_date: new Date(),
-            },
-      });
-      Logger.log(`Content Updated`);
-      this.eventEmitter.emit(
-        "crawl.finished",
-        new CrawlFinishedEvent(contents[0].id)
-      );
+    try {
+      const contents =
+        await this.contentService.getContentsByAccountNameForCrawl(event.name);
+      if (contents[0]) {
+        Logger.log(`started to crawl ${contents[0].id}`);
+        const crawled = await this.crawlerService.crawl(contents[0].link);
+        await this.contentService.updateCrawl({
+          id: contents[0].id,
+          crawl: crawled
+            ? {
+                url: crawled.url,
+                title: crawled.title,
+                description: crawled.description,
+                image: crawled.image,
+                keyword: crawled.keyword,
+                raw_text: crawled.raw_text,
+                crawl_date: new Date(),
+              }
+            : {
+                url: "",
+                title: "",
+                description: "",
+                image: "",
+                keyword: "",
+                raw_text: "",
+                crawl_date: new Date(),
+              },
+        });
+        Logger.log(`Content Updated`);
+        this.eventEmitter.emit(
+          "crawl.finished",
+          new CrawlFinishedEvent(contents[0].id)
+        );
+      }
+    } catch (error) {
+      Logger.error(error);
     }
     Logger.log(`Listener Finished`);
   }

@@ -74,10 +74,10 @@ export class ContentService {
   async updateGenerated(
     updateGeneratedDto: UpdateGeneratedDto
   ): Promise<Content> {
-    Logger.debug(updateGeneratedDto.id);
+    Logger.debug(updateGeneratedDto);
     const updated = this.contentModel.findByIdAndUpdate(
       updateGeneratedDto.id,
-      { blog: updateGeneratedDto.generated },
+      { generated: updateGeneratedDto.generated },
       { upsert: true }
     );
     return updated;
