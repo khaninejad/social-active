@@ -14,6 +14,7 @@ export class RssService {
       throw new Error("Please provide a URL");
     }
     const task_list: Promise<FeedData>[] = [];
+    //todo: fix failed rss and mark them as disabled
     this.url_list.forEach(async (url) => {
       task_list.push(extract(url));
     });

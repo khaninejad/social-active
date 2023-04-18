@@ -8,6 +8,7 @@ export class CrawlerService {
   async crawl(url: string): Promise<CrawlerDataDto> {
     try {
       const ultimateUrl = await this.getFinalUrl(url);
+      Logger.debug(ultimateUrl);
 
       const htmlResponse = await axios.get(ultimateUrl, {
         headers: {
@@ -25,6 +26,7 @@ export class CrawlerService {
         image: $('meta[property="og:image"]').attr("content"),
         raw_text: $("p").text().replace(/\s+/g, " "),
       };
+      Logger.debug(crawled_data);
       return crawled_data;
     } catch (error) {
       Logger.error(error);
@@ -32,6 +34,10 @@ export class CrawlerService {
   }
 
   async getFinalUrl(url: string): Promise<string> {
+    if (!url.startsWith("https://news.google.com/")) {
+      return url;
+    }
+
     const response = await axios.get(url, {
       maxRedirects: 0,
       validateStatus: (status) => status >= 300 && status < 400,

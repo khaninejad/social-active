@@ -86,8 +86,9 @@ describe("WordpressService", () => {
     expect(mockCreate).toHaveBeenCalledWith({
       title,
       content,
-      categories: [],
-      tags: [],
+      featured_media: undefined,
+      categories: undefined,
+      tags: undefined,
       status: "publish",
     });
     expect(result.id).toEqual(1);

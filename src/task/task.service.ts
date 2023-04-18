@@ -28,6 +28,8 @@ export class TaskService {
   }
 
   addCronJob(name: string, time: string, feeds: string[]) {
+    const string = this.getCronString(time);
+    Logger.debug(string);
     const job = new CronJob(this.getCronString(time), async () => {
       this.logger.warn(`time (${time}) for job ${name} to run!`);
       const rssData = await this.rssService.fetch(feeds);
@@ -59,9 +61,9 @@ export class TaskService {
   }
   private getCronString(expression: string) {
     if (expression.includes("h")) {
-      return `0 0 */${expression.replace("h", "")} 9-17 * *`;
+      return `* * */${expression.replace("h", "")} 9-17 * *`;
     } else if (expression.includes("m")) {
-      return `0 */${expression.replace("m", "")} * 9-17 * *`;
+      return `0 */${expression.replace("m", "")} * * * *`;
     } else {
       throw new Error("invalid time variant ");
     }

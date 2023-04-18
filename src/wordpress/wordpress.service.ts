@@ -22,13 +22,11 @@ export class WordpressService {
     tags: string[]
   ): Promise<WordpressResponse> {
     try {
-      const [uploadedMedia, categoryIds, tagIds] = await Promise.all([
-        this.uploadMedia(media_url, title),
-        this.getCategoryIds(categories),
-        this.getTagIds(tags),
-      ]);
+      const tagIds = await this.getTagIds(tags);
+      const categoryIds = await this.getCategoryIds(categories);
+      const uploadedMedia = await this.uploadMedia(media_url, title);
 
-      Logger.error(
+      Logger.log(
         `uploaded media ${
           uploadedMedia?.id
         } and url ${media_url} tags: ${JSON.stringify(tagIds)}`
@@ -38,10 +36,11 @@ export class WordpressService {
         title,
         content,
         featured_media: uploadedMedia?.id ?? undefined,
-        categories: categoryIds ?? undefined,
-        tags: tagIds ?? undefined,
+        categories: categoryIds.length > 0 ? categoryIds : undefined,
+        tags: tagIds.length > 0 ? tagIds : undefined,
         status: "publish",
       });
+
       return res as WordpressResponse;
     } catch (error) {
       Logger.error(error);
@@ -62,7 +61,7 @@ export class WordpressService {
         });
       return uploadedImage;
     } catch (error) {
-      Logger.error(error);
+      Logger.error(`uploadMedia error ${error}`);
     }
   }
   async getCategoryIds(categoryNames: string[]): Promise<number[]> {
@@ -80,12 +79,14 @@ export class WordpressService {
             slug: this.titleToSlug(name),
             description: "",
           });
+          categoryIds.push(category.id);
+        } else {
+          categoryIds.push(category[0].id);
         }
-        categoryIds.push(category[0].id);
       });
       await Promise.all(promises);
     } catch (error) {
-      Logger.error(error);
+      Logger.error(`getCategoryIds error ${error}`);
     }
 
     return categoryIds;
@@ -102,14 +103,16 @@ export class WordpressService {
             name: tagItem,
             slug: this.titleToSlug(tagItem),
           });
-          tagIds.push(newTag[0].id);
+          tagIds.push(newTag.id);
+          Logger.warn(`newTag ${JSON.stringify(newTag)}`);
         } else {
+          Logger.warn(`tag ${JSON.stringify(tag)}`);
           tagIds.push(tag[0].id);
         }
       });
       await Promise.all(promises);
     } catch (error) {
-      Logger.error(error);
+      Logger.error(`getTagIds error ${error}`);
     }
 
     return tagIds;
