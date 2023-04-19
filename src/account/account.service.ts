@@ -1,10 +1,11 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, Logger } from "@nestjs/common";
 import { Model } from "mongoose";
 import { ACCOUNT_MODEL } from "../app.const";
 import { Account } from "./interfaces/account.interface";
 import { CreateAccountDto } from "./dto/create-account.dto";
 import { UpdateAccountFeedDto } from "./dto/update-account-feed.dto";
 import { UpdateAccountConfigDto } from "./dto/update-account-config.dto";
+import { UpdateAccountCredentialsDto } from "./dto/update-account-credentials.dto";
 
 @Injectable()
 export class AccountService {
@@ -43,6 +44,16 @@ export class AccountService {
     const updated = this.accountModel.findOneAndUpdate(
       { account: updateAccountConfigDto.account },
       updateAccountConfigDto,
+      { upsert: true }
+    );
+    return updated;
+  }
+
+  updateCredentials(updateAccountCredentialsDto: UpdateAccountCredentialsDto) {
+    Logger.debug(updateAccountCredentialsDto);
+    const updated = this.accountModel.findOneAndUpdate(
+      { account: updateAccountCredentialsDto.account },
+      updateAccountCredentialsDto,
       { upsert: true }
     );
     return updated;

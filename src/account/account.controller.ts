@@ -1,7 +1,8 @@
-import { Controller, Get, Logger, Post, Query, Req, Res } from "@nestjs/common";
+import { Body, Controller, Get, Logger, Post, Query, Req, Res } from "@nestjs/common";
 import Client, { auth } from "twitter-api-sdk";
 import { AccountService } from "./account.service";
 import { CreateAccountDto } from "./dto/create-account.dto";
+import { UpdateAccountCredentialsDto } from "./dto/update-account-credentials.dto";
 
 @Controller("account")
 export class AccountController {
@@ -67,6 +68,16 @@ export class AccountController {
       account: req.username,
       config: { reminder: req.reminder },
     });
+    return res;
+  }
+
+  @Post("/credentials")
+  async credentials(
+    @Body() updateAccountCredentialsDto: UpdateAccountCredentialsDto
+  ): Promise<any> {
+    const res = this.accountService.updateCredentials(
+      updateAccountCredentialsDto
+    );
     return res;
   }
 }
