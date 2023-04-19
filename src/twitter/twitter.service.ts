@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { AccountService } from "src/account/account.service";
-import Client, { auth } from "twitter-api-sdk";
+import { AccountService } from "../account/account.service";
+import Client from "twitter-api-sdk";
 
 @Injectable()
 export class TwitterService {
@@ -11,22 +11,8 @@ export class TwitterService {
 
   async tweet(account: string, text: string) {
     const currentAccount = await this.accountService.getAccount(account);
-    const authClient = new auth.OAuth2User({
-      client_id: currentAccount.credentials.client_id as string,
-      client_secret: currentAccount.credentials.client_secret as string,
-      callback: currentAccount.credentials.callback as string,
-      scopes: ["users.read", "tweet.read", "offline.access", "tweet.write"],
-      token: {
-        access_token: currentAccount.access_token,
-        refresh_token: currentAccount.refresh_token,
-        expires_at: Number.parseInt(currentAccount.expires_at),
-        token_type: "bearer",
-        scope: "users.read,tweet.read,offline.access,tweet.write",
-      },
-    });
-
     this.logger.debug(`access_token: ${currentAccount.access_token}`);
-    this.client = new Client(authClient);
+    this.client = new Client(currentAccount.access_token);
     this.logger.log(`tweet: ${text}`);
     try {
       const tweet = await this.client.tweets.createTweet({

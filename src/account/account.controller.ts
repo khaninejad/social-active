@@ -23,7 +23,7 @@ export class AccountController {
       client_id: process.env.CLIENT_ID,
       client_secret: process.env.CLIENT_SECRET,
       callback: process.env.CLIENT_CALLBACK,
-      scopes: ["tweet.read", "users.read", "offline.access"],
+      scopes: ["tweet.read", "tweet.write", "users.read", "offline.access"],
     });
     this.client = new Client(this.authClient);
   }
@@ -36,7 +36,7 @@ export class AccountController {
         client_id: currentAccount.credentials.client_id,
         client_secret: currentAccount.credentials.client_secret,
         callback: currentAccount.credentials.callback,
-        scopes: ["tweet.read", "users.read", "offline.access"],
+        scopes: ["tweet.read", "tweet.write", "users.read", "offline.access"],
       });
       this.client = new Client(this.authClient);
     }

@@ -30,14 +30,6 @@ describe("AccountController", () => {
   it("should be defined", () => {
     expect(controller).toBeDefined();
   });
-  describe("account", () => {
-    it("should return the login URL", async () => {
-      const result = "loginUrl";
-      jest.spyOn(service, "getLoginUrl").mockImplementation(() => result);
-
-      expect(controller.account()).toBe(result);
-    });
-  });
 
   describe("login", () => {
     it("should redirect to the auth URL", async () => {

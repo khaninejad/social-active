@@ -24,9 +24,13 @@ describe("OpenAIService", () => {
       const generatedText = await openaiService.generateText(prompt);
 
       expect(createCompletionMock).toHaveBeenCalledWith({
+        frequency_penalty: 0,
+        presence_penalty: 0,
         model: "text-davinci-003",
         prompt,
         n: 1,
+        temperature: 0.2,
+        top_p: 1,
         max_tokens: 1024,
       });
       expect(generatedText).toEqual({ hello: "world" });
