@@ -19,18 +19,25 @@ export class OpenAIService {
         model: "text-davinci-003",
         prompt,
         n: 1,
+        top_p: 1,
+        temperature: 0.2,
+        frequency_penalty: 0,
+        presence_penalty: 0,
         max_tokens: 1024,
       });
       const generated_content = completions.data.choices[0].text.trim();
-      const clean_content = this.cleanString(
-        this.escapeUrlsInJsonSchemaString(generated_content)
-      );
+      const clean_content = this.cleanString(generated_content);
       Logger.warn(`raw data ${clean_content}`);
       const extracted = this.extractJson(clean_content);
       return extracted;
     } catch (error) {
       Logger.error(`generateText error ${error}`);
     }
+  }
+
+  countTokens(str: string): number {
+    const tokens = str.trim().split(/\s+/);
+    return tokens.length;
   }
 
   cleanString(str: string): string {
@@ -54,6 +61,7 @@ export class OpenAIService {
       throw new Error("not contain valid json data");
     }
   }
+
   escapeUrlsInJsonSchemaString(input: string): string {
     const regex = /<a\s+(?:[^>]*?\s+)?href=(["'])(.*?)\1/gi;
     const escapedBody = input.replace(regex, function (match, quote, url) {
@@ -62,4 +70,6 @@ export class OpenAIService {
     });
     return escapedBody;
   }
+
+  
 }
