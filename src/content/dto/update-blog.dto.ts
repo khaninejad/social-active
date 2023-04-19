@@ -3,6 +3,8 @@ export interface UpdateBlogDto {
   readonly blog: {
     id: number;
     title: string;
+    link: string;
+    slug: string;
     date: Date;
   };
 }

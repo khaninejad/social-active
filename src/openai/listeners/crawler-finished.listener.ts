@@ -62,7 +62,7 @@ export class CrawlFinishedListener {
     "title": "new content title",
     "category": "new category",
     "tags": "new tags",
-    "body": "new content (min. 500 words, separate paragraphs with <p> tag) including content_source and content_source_url and slash the quotes"
+    "body": "new content (min. 500 words, separate paragraphs with <p> tag) including content_source and content_source_url"
     }
     JSON template:
     {

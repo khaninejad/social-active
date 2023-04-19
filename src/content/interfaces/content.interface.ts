@@ -18,6 +18,8 @@ export interface Content extends Document {
   readonly blog: {
     id: string;
     title: string;
+    link: string;
+    slug: string;
     date: Date;
   };
   readonly generated: {

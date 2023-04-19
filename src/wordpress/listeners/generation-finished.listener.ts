@@ -1,13 +1,15 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { OnEvent } from "@nestjs/event-emitter";
+import { EventEmitter2, OnEvent } from "@nestjs/event-emitter";
 import { ContentService } from "../../content/content.service";
 import { WordpressService } from "../wordpress.service";
 import { GenerationFinishedEvent } from "src/events/generation-finished.event";
+import { WordpressPublishedEvent } from "src/events/wordpress-published.event";
 
 @Injectable()
 export class CrawlFinishedListener {
   constructor(
     private readonly wordpressService: WordpressService,
+    private eventEmitter: EventEmitter2,
     private readonly contentService: ContentService
   ) {}
 
@@ -28,10 +30,16 @@ export class CrawlFinishedListener {
         blog: {
           id: res.id,
           title: res.title.raw,
+          link: res.link,
+          slug: res.slug,
           date: res.date,
         },
       });
-      Logger.log(`Content updated for ${res.id} post`);
+      this.eventEmitter.emit(
+        "wordpress.published",
+        new WordpressPublishedEvent(content.id)
+      );
+      Logger.log(`Content updated for ${JSON.stringify(res)} post`);
     }
     Logger.log(`Listener Finished`);
   }

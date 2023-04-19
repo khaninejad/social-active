@@ -62,4 +62,7 @@ export class AccountService {
   async getAll(): Promise<Account[]> {
     return this.accountModel.find().exec();
   }
+  getAccount(account: string): Promise<Account> {
+    return this.accountModel.findOne({ account: account }).exec();
+  }
 }

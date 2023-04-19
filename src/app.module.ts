@@ -9,6 +9,7 @@ import { EventEmitterModule } from "@nestjs/event-emitter";
 import { CrawlerModule } from "./crawler/crawler.module";
 import { WordpressModule } from "./wordpress/wordpress.module";
 import { OpenaiModule } from "./openai/openai.module";
+import { TwitterModule } from "./twitter/twitter.module";
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { OpenaiModule } from "./openai/openai.module";
     CrawlerModule,
     WordpressModule,
     OpenaiModule,
+    TwitterModule,
   ],
   controllers: [],
   providers: [TaskService],

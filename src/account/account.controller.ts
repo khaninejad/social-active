@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Logger, Post, Query, Req, Res } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  Logger,
+  Post,
+  Query,
+  Req,
+  Res,
+} from "@nestjs/common";
 import Client, { auth } from "twitter-api-sdk";
 import { AccountService } from "./account.service";
 import { CreateAccountDto } from "./dto/create-account.dto";
@@ -20,7 +29,17 @@ export class AccountController {
   }
 
   @Get("/")
-  account(): string {
+  async account(@Query("account") account: string): Promise<string> {
+    if (account) {
+      const currentAccount = await this.accountService.getAccount(account);
+      this.authClient = new auth.OAuth2User({
+        client_id: currentAccount.credentials.client_id,
+        client_secret: currentAccount.credentials.client_secret,
+        callback: currentAccount.credentials.callback,
+        scopes: ["tweet.read", "users.read", "offline.access"],
+      });
+      this.client = new Client(this.authClient);
+    }
     return this.accountService.getLoginUrl();
   }
 

@@ -28,7 +28,9 @@ export class OpenAIService {
       const generated_content = completions.data.choices[0].text.trim();
       const clean_content = this.cleanString(generated_content);
       Logger.warn(`raw data ${clean_content}`);
-      const extracted = this.extractJson(clean_content);
+      const extracted = this.extractJson(
+        this.escapeQuotesInATags(clean_content)
+      );
       return extracted;
     } catch (error) {
       Logger.error(`generateText error ${error}`);
@@ -69,5 +71,11 @@ export class OpenAIService {
       return `<a href=\\"${escapedUrl}\\">`;
     });
     return escapedBody;
+  }
+  escapeQuotesInATags(str: string): string {
+    const regex = /<a[^>]*>[^<]*<\/a>/gi;
+    return str.replace(regex, (match) => {
+      return match.replace(/"/g, '\\"');
+    });
   }
 }
