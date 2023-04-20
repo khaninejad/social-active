@@ -4,6 +4,8 @@ import { WordpressPublishedListener } from "./listeners/wordpress-published.list
 import { DatabaseModule } from "../database/database.module";
 import { AccountService } from "../account/account.service";
 import { ContentService } from "../content/content.service";
+import { accountsProviders } from "src/account/content.providers";
+import { contentsProviders } from "src/content/content.providers";
 
 @Module({
   imports: [DatabaseModule],
@@ -11,7 +13,9 @@ import { ContentService } from "../content/content.service";
     TwitterService,
     WordpressPublishedListener,
     AccountService,
+    ...accountsProviders,
     ContentService,
+    ...contentsProviders,
   ],
 })
 export class TwitterModule {}
