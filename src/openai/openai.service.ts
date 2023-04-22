@@ -23,7 +23,7 @@ export class OpenAIService {
         temperature: 0.2,
         frequency_penalty: 0,
         presence_penalty: 0,
-        max_tokens: 1024,
+        max_tokens: 1224,
       });
       const generated_content = completions.data.choices[0].text.trim();
       const clean_content = this.cleanString(generated_content);

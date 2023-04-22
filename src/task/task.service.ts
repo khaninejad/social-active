@@ -28,8 +28,6 @@ export class TaskService {
   }
 
   addCronJob(name: string, time: string, feeds: string[]) {
-    const string = this.getCronString(time);
-    Logger.debug(string);
     const job = new CronJob(this.getCronString(time), async () => {
       this.logger.warn(`time (${time}) for job ${name} to run!`);
       const rssData = await this.rssService.fetch(feeds);

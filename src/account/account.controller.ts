@@ -12,6 +12,7 @@ import Client, { auth } from "twitter-api-sdk";
 import { AccountService } from "./account.service";
 import { CreateAccountDto } from "./dto/create-account.dto";
 import { UpdateAccountCredentialsDto } from "./dto/update-account-credentials.dto";
+import configuration from "../app.const";
 
 @Controller("account")
 export class AccountController {
@@ -20,9 +21,7 @@ export class AccountController {
   STATE = "my-state";
   constructor(private readonly accountService: AccountService) {
     this.authClient = new auth.OAuth2User({
-      client_id: process.env.CLIENT_ID,
-      client_secret: process.env.CLIENT_SECRET,
-      callback: process.env.CLIENT_CALLBACK,
+      ...configuration.getTwitterEnv(),
       scopes: ["tweet.read", "tweet.write", "users.read", "offline.access"],
     });
     this.client = new Client(this.authClient);

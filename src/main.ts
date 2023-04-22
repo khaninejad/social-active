@@ -5,6 +5,9 @@ import { Logger } from "@nestjs/common";
 const dotenv = require("dotenv");
 dotenv.config();
 const port = process.env.PORT;
+if (!port) {
+  throw new Error("PORT is not set");
+}
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
