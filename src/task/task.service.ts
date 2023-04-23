@@ -18,7 +18,7 @@ export class TaskService {
     private readonly contentService: ContentService,
     private eventEmitter: EventEmitter2
   ) {
-    this.fetchFeeds().then(() => "tasks started");
+    this.fetchFeeds().then(() => Logger.log("tasks started"));
   }
   async fetchFeeds() {
     const accounts = await this.accountService.getAll();
