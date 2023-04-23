@@ -19,6 +19,8 @@ describe("AccountController", () => {
             create: jest.fn(),
             updateFeeds: jest.fn(),
             updateConfig: jest.fn(),
+            updateCredentials: jest.fn(),
+            getAccount: jest.fn(),
           },
         },
       ],
@@ -136,6 +138,65 @@ describe("AccountController", () => {
       const res = await controller.config(req);
 
       expect(res).toBe(account);
+    });
+  });
+
+  describe("credentials", () => {
+    it("should update credentials", async () => {
+      const account = {
+        account: "account1",
+        access_token: "random_token",
+        refresh_token: "random_refresh_account",
+        expires_at: "1681219898317",
+        feeds: [],
+        config: {},
+        credentials: {
+          client_id: "client-id",
+          client_secret: "client-secret",
+          callback: "http://example.com/callnback",
+        },
+      };
+      jest
+        .spyOn(service, "updateCredentials")
+        .mockResolvedValue(account as Account);
+
+      const req = {
+        account: "account1",
+        credentials: {
+          client_id: "client-id",
+          client_secret: "client-secret",
+          callback: "http://example.com/callnback",
+        },
+      };
+      const res = await controller.credentials(req);
+
+      expect(res).toBe(account);
+    });
+  });
+
+  describe("index", () => {
+    it("get twitter account", async () => {
+      const account = {
+        account: "account1",
+        access_token: "random_token",
+        refresh_token: "random_refresh_account",
+        expires_at: "1681219898317",
+        feeds: [],
+        config: {},
+        credentials: {
+          client_id: "client-id",
+          client_secret: "client-secret",
+          callback: "http://example.com/callnback",
+        },
+      };
+
+      const url = "http://example.com/callback";
+      jest.spyOn(service, "getAccount").mockResolvedValue(account as Account);
+
+      jest.spyOn(service, "getLoginUrl").mockReturnValue(url);
+      const res = await controller.account("account");
+
+      expect(res).toBe(url);
     });
   });
 });

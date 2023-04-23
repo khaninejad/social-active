@@ -6,6 +6,7 @@ import { CreateAccountDto } from "./dto/create-account.dto";
 import { ACCOUNT_MODEL } from "../app.const";
 import { UpdateAccountFeedDto } from "./dto/update-account-feed.dto";
 import { UpdateAccountConfigDto } from "./dto/update-account-config.dto";
+import { UpdateAccountCredentialsDto } from "./dto/update-account-credentials.dto";
 
 const mockAccount: CreateAccountDto = {
   account: "account1",
@@ -17,8 +18,15 @@ const mockAccount: CreateAccountDto = {
 describe("AccountService", () => {
   let service: AccountService;
   let model: Model<Account>;
+  let mockAccountModel;
 
   beforeEach(async () => {
+    mockAccountModel = {
+      find: jest.fn().mockReturnThis(),
+      findOne: jest.fn().mockReturnThis(),
+      exec: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AccountService,
@@ -27,10 +35,9 @@ describe("AccountService", () => {
           useValue: {
             new: jest.fn().mockResolvedValue(mockAccount),
             constructor: jest.fn().mockResolvedValue(mockAccount),
-            find: jest.fn(),
             findOneAndUpdate: jest.fn(),
             save: jest.fn(),
-            exec: jest.fn(),
+            ...mockAccountModel,
           },
         },
       ],
@@ -77,5 +84,43 @@ describe("AccountService", () => {
       config: { reminder: "2h" },
     } as UpdateAccountConfigDto);
     expect(updated).toEqual(mockAccount);
+  });
+
+  it("should update credentials of account", async () => {
+    jest
+      .spyOn(model, "findOneAndUpdate")
+      .mockResolvedValueOnce(mockAccount as any);
+    const updated = await service.updateCredentials({
+      account: "account1",
+      credentials: {
+        client_id: "client-id",
+        client_secret: "client-secret",
+        callback: "callback",
+      },
+    } as UpdateAccountCredentialsDto);
+    expect(updated).toEqual(mockAccount);
+  });
+
+  it("should get all account", async () => {
+    mockAccountModel.exec.mockResolvedValue([mockAccount]);
+    const updated = await service.getAll();
+    expect(mockAccountModel.find).toHaveBeenCalledTimes(1);
+    expect(mockAccountModel.exec).toHaveBeenCalledTimes(1);
+    expect(updated[0]).toEqual(mockAccount);
+  });
+
+  it("should get an account", async () => {
+    mockAccountModel.exec.mockResolvedValue(mockAccount);
+    const updated = await service.getAccount("account-name");
+    expect(mockAccountModel.findOne).toHaveBeenCalledTimes(1);
+    expect(mockAccountModel.exec).toHaveBeenCalledTimes(1);
+    expect(updated).toEqual(mockAccount);
+  });
+
+  it("get login url", () => {
+    const updated = service.getLoginUrl();
+    expect(updated).toEqual(
+      'Follow the link for <a href="undefined">login</a>'
+    );
   });
 });

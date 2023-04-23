@@ -49,8 +49,9 @@ export class AccountService {
     return updated;
   }
 
-  updateCredentials(updateAccountCredentialsDto: UpdateAccountCredentialsDto) {
-    Logger.debug(updateAccountCredentialsDto);
+  async updateCredentials(
+    updateAccountCredentialsDto: UpdateAccountCredentialsDto
+  ): Promise<Account> {
     const updated = this.accountModel.findOneAndUpdate(
       { account: updateAccountCredentialsDto.account },
       updateAccountCredentialsDto,
