@@ -26,7 +26,7 @@ export class CrawlerService {
         image: $('meta[property="og:image"]').attr("content"),
         raw_text: $("p").text().replace(/\s+/g, " "),
       };
-      Logger.debug(crawled_data);
+      Logger.log(`${ultimateUrl} is crawled`);
       return crawled_data;
     } catch (error) {
       Logger.error(error);
@@ -34,17 +34,19 @@ export class CrawlerService {
   }
 
   async getFinalUrl(url: string): Promise<string> {
-    if (!url.startsWith("https://news.google.com/")) {
+    if (
+      !url.startsWith("https://news.google.com/") &&
+      !url.startsWith("https://consent.google.com")
+    ) {
       return url;
+    }
+    if (url.startsWith("https://consent.google.com")) {
+      url = new URLSearchParams(url.split("?")[1]).get("continue");
     }
 
     const response = await axios.get(url, {
       maxRedirects: 0,
-      validateStatus: (status) => status >= 300 && status < 400,
     });
-    if (url.startsWith("https://consent.google.com")) {
-      url = new URLSearchParams(url.split("?")[1]).get("continue");
-    }
 
     if (response.status === 302) {
       const redirectUrl = response.headers.location;
@@ -55,15 +57,17 @@ export class CrawlerService {
     }
   }
 
-  private async extractGoogleNewsUrl(url: string): Promise<string | undefined> {
+  async extractGoogleNewsUrl(url: string): Promise<string | undefined> {
     if (url.startsWith("https://news.google.com/")) {
       const text = await this.crawlBody(url);
-      const urlRegex = /(https?:\/\/[^\s]+)/g;
-      const urls = text.match(urlRegex);
-      if (urls) {
-        return urls[0].replace('"', "");
+      if (text) {
+        const urlRegex = /https?:\/\/[^\s"]+/g;
+        const urls = text.match(urlRegex);
+        if (urls) {
+          return urls[0].replace('"', "");
+        }
+        return undefined;
       }
-      return undefined;
     }
     return url;
   }
