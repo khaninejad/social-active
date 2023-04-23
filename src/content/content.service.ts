@@ -41,7 +41,7 @@ export class ContentService {
       return createdContent;
     } catch (error) {
       if (error.code === 11000) {
-        console.log("Duplicate key error:", error.keyValue);
+        Logger.log("duplicate content");
       } else {
         throw error;
       }
