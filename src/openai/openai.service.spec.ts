@@ -1,3 +1,4 @@
+import { Logger } from "@nestjs/common";
 import { OpenAIService } from "./openai.service";
 
 describe("OpenAIService", () => {
@@ -35,6 +36,24 @@ describe("OpenAIService", () => {
       });
       expect(generatedText).toEqual({ hello: "world" });
     });
+
+    it("should call createCompletion with incorrect arguments", async () => {
+      createCompletionMock.mockResolvedValue({
+        data: {
+          choices: [{ text: `{"hello": "world"}` }],
+        },
+      });
+
+      const prompt = "Test prompt";
+      jest
+        .spyOn(openaiService["openai"], "createCompletion")
+        .mockRejectedValueOnce(new Error(""));
+      jest.spyOn(Logger, "error").mockImplementation();
+      await openaiService.generateText(prompt);
+
+      expect(Logger.error).toHaveBeenCalledTimes(1);
+      expect(Logger.error).toHaveBeenCalledWith("generateText error Error");
+    });
   });
 
   describe("extractJson", () => {
@@ -65,6 +84,7 @@ describe("OpenAIService", () => {
         openaiService.extractJson('ok ok ok {"hello": true ok ok ok ');
       }).toThrow("not contain valid json data");
     });
+
     it("should return valid object without pair bracket", () => {
       expect(() => {
         openaiService.extractJson(`{
@@ -76,5 +96,21 @@ describe("OpenAIService", () => {
         }`);
       }).toThrow("not contain valid json data");
     });
+  });
+
+  it("countTokens", () => {
+    const res = openaiService.countTokens(
+      "Bird Flu Mutations: Are Humans at Risk of Contracting Avian Flu"
+    );
+    expect(res).toBe(11);
+  });
+
+  it("escapeQuotesInATags", () => {
+    const res = openaiService.escapeQuotesInATags(
+      `<html><body><p>this is a text<a href="https://originallink.com">this is a link</a></p></body></html`
+    );
+    expect(res).toBe(
+      `<html><body><p>this is a text<a href=\\\"https://originallink.com\\\">this is a link</a></p></body></html`
+    );
   });
 });

@@ -64,14 +64,6 @@ export class OpenAIService {
     }
   }
 
-  escapeUrlsInJsonSchemaString(input: string): string {
-    const regex = /<a\s+(?:[^>]*?\s+)?href=(["'])(.*?)\1/gi;
-    const escapedBody = input.replace(regex, function (match, quote, url) {
-      const escapedUrl = url.replace(/"/g, '\\"');
-      return `<a href=\\"${escapedUrl}\\">`;
-    });
-    return escapedBody;
-  }
   escapeQuotesInATags(str: string): string {
     const regex = /<a[^>]*>[^<]*<\/a>/gi;
     return str.replace(regex, (match) => {
