@@ -2,6 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { AccountController } from "./account.controller";
 import { AccountService } from "./account.service";
 import { Account } from "./interfaces/account.interface";
+jest.mock("../app.const");
 
 describe("AccountController", () => {
   let controller: AccountController;

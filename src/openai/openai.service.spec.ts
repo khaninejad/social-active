@@ -31,7 +31,7 @@ describe("OpenAIService", () => {
         n: 1,
         temperature: 0.2,
         top_p: 1,
-        max_tokens: 1024,
+        max_tokens: 1224,
       });
       expect(generatedText).toEqual({ hello: "world" });
     });
