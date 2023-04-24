@@ -27,11 +27,11 @@ export class TaskService {
     });
   }
 
-  addCronJob(name: string, time: string, feeds: string[]) {
+  addCronJob(name: string, time: string, feeds: string[]): CronJob {
     const job = new CronJob(this.getCronString(time), async () => {
       this.logger.warn(`time (${time}) for job ${name} to run!`);
       const rssData = await this.rssService.fetch(feeds);
-      const mapped = rssData.map((data) => {
+      const mapped = rssData?.map((data) => {
         return {
           account: name,
           id: undefined,
@@ -44,18 +44,26 @@ export class TaskService {
       });
       this.contentService.createMany(mapped);
       this.eventEmitter.emit("content.updated", new ContentUpdatedEvent(name));
-      this.logger.log(rssData.length);
+      this.logger.log(rssData?.length);
     });
 
     this.schedulerRegistry.addCronJob(name, job);
     job.start();
 
     this.logger.warn(`job ${name} added for each time at ${time}!`);
+    return job;
   }
 
   deleteCron(name: string) {
     this.schedulerRegistry.deleteCronJob(name);
     this.logger.warn(`job ${name} deleted!`);
+  }
+
+  deleteAllJobs() {
+    const jobs = this.schedulerRegistry.getCronJobs();
+    jobs.forEach((task) => {
+      task.stop();
+    });
   }
   private getCronString(expression: string) {
     if (expression.includes("h")) {

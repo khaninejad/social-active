@@ -48,11 +48,15 @@ export class ContentUpdatedListener {
                 crawl_date: new Date(),
               },
         });
-        Logger.log(`Content Updated`);
-        this.eventEmitter.emit(
-          "crawl.finished",
-          new CrawlFinishedEvent(contents[0].id)
-        );
+        if (crawled) {
+          Logger.log(`crawled and Content Updated`);
+          this.eventEmitter.emit(
+            "crawl.finished",
+            new CrawlFinishedEvent(contents[0].id)
+          );
+        } else {
+          Logger.error(`crawl was unsuccessfully`);
+        }
       }
     } catch (error) {
       Logger.error(`ContentUpdatedListener ${error}`);

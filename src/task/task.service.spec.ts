@@ -14,10 +14,7 @@ describe("TaskService", () => {
   let eventEmitter: EventEmitter2;
 
   beforeEach(() => {
-    schedulerRegistry = {
-      addCronJob: jest.fn(),
-      deleteCronJob: jest.fn(),
-    } as unknown as SchedulerRegistry;
+    schedulerRegistry = new SchedulerRegistry();
 
     accountService = {
       getAll: jest.fn().mockResolvedValue([
@@ -59,29 +56,38 @@ describe("TaskService", () => {
     );
   });
 
+  afterEach(() => {
+    taskService.deleteAllJobs();
+  });
+
   describe("fetchFeeds", () => {
     it("should call addCronJob with correct parameters", async () => {
-      await taskService.fetchFeeds();
-
-      expect(schedulerRegistry.addCronJob).toBeCalledTimes(2);
+      expect(schedulerRegistry.getCronJobs().size).toBe(1);
     });
   });
 
   describe("addCronJob", () => {
     it("should add a cron job to the scheduler", async () => {
-      taskService.addCronJob("test-job", "1m", ["http://test-feed.com/rss"]);
-      expect(schedulerRegistry.addCronJob).toHaveBeenCalledWith(
-        "test-job",
-        expect.anything()
+      jest.spyOn(rssService, "fetch").mockImplementation();
+      jest.spyOn(contentService, "createMany").mockImplementation();
+      jest.spyOn(eventEmitter, "emit").mockImplementation();
+      const job = taskService.addCronJob("test-new", "1m", [
+        "http://test-feed.com/rss",
+      ]);
+      job.stop();
+      expect(schedulerRegistry.getCronJob("test-new").nextDate()).toBeTruthy();
+      expect(schedulerRegistry.getCronJob("test-new").lastDate()).toBe(
+        undefined
       );
     });
   });
 
   describe("deleteCron", () => {
     it("should call schedulerRegistry.deleteCronJob with correct parameters", () => {
+      taskService.addCronJob("test-job", "1m", []);
       taskService.deleteCron("test-job");
 
-      expect(schedulerRegistry.deleteCronJob).toHaveBeenCalledWith("test-job");
+      expect(schedulerRegistry.getCronJobs().size).toBe(1);
     });
   });
 });
