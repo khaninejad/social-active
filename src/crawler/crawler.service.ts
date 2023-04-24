@@ -29,7 +29,7 @@ export class CrawlerService {
       Logger.log(`${ultimateUrl} is crawled`);
       return crawled_data;
     } catch (error) {
-      Logger.error(error);
+      Logger.error(`CrawlerService ${error}`);
     }
   }
 
@@ -48,38 +48,42 @@ export class CrawlerService {
       maxRedirects: 0,
     });
 
-    if (response.status === 302) {
+    if (response?.status === 302) {
       const redirectUrl = response.headers.location;
       return this.getFinalUrl(redirectUrl);
     } else {
-      url = await this.extractGoogleNewsUrl(url);
+      url = await this.extractGoogleNewsUrl(response.data);
       return url;
     }
   }
 
-  async extractGoogleNewsUrl(url: string): Promise<string | undefined> {
-    if (url.startsWith("https://news.google.com/")) {
-      const text = await this.crawlBody(url);
-      if (text) {
-        const urlRegex = /https?:\/\/[^\s"]+/g;
-        const urls = text.match(urlRegex);
-        if (urls) {
-          return urls[0].replace('"', "");
-        }
-        return undefined;
+  async extractGoogleNewsUrl(
+    response_data: string
+  ): Promise<string | undefined> {
+    if (response_data) {
+      const urlRegex = /https?:\/\/[^\s"]+/g;
+      const urls = response_data.match(urlRegex);
+      if (urls) {
+        return urls[0].replace('"', "");
       }
+      return undefined;
     }
-    return url;
   }
 
   private async crawlBody(url: string): Promise<string> {
     try {
-      const htmlResponse = await axios.get(url);
+      const htmlResponse = await axios.get(url, {
+        withCredentials: true,
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36",
+        },
+      });
       const html = htmlResponse.data;
       const $ = load(html);
       return $("body").html();
     } catch (error) {
-      Logger.error(error);
+      Logger.error(`crawlBody ${error}`);
     }
   }
 }

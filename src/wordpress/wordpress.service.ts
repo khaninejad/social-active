@@ -43,7 +43,7 @@ export class WordpressService {
 
       return res as WordpressResponse;
     } catch (error) {
-      Logger.error(error);
+      Logger.error(`createPost ${error}`);
     }
   }
 

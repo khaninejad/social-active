@@ -32,7 +32,7 @@ export class TwitterService {
       return tweet;
     } catch (error) {
       console.error(account);
-      this.logger.error(error.message);
+      this.logger.error(`TwitterService ${error.message}`);
       console.log(`${JSON.stringify(error as Error)}`);
     }
   }

@@ -59,7 +59,7 @@ export class OpenAIService {
         .replace(/ +(?= )/g, "");
       return JSON.parse(jsonStr) as GeneratedBlogDto;
     } catch (error) {
-      Logger.error(error);
+      Logger.error(`extractJson ${error}`);
       throw new Error("not contain valid json data");
     }
   }

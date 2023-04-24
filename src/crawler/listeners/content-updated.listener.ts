@@ -22,7 +22,9 @@ export class ContentUpdatedListener {
       const contents =
         await this.contentService.getContentsByAccountNameForCrawl(event.name);
       if (contents[0]) {
-        Logger.log(`started to crawl ${contents[0].id}`);
+        Logger.log(
+          `started to crawl ${contents[0].id} with link of ${contents[0].link}`
+        );
         const crawled = await this.crawlerService.crawl(contents[0].link);
         await this.contentService.updateCrawl({
           id: contents[0].id,
@@ -53,7 +55,7 @@ export class ContentUpdatedListener {
         );
       }
     } catch (error) {
-      Logger.error(error);
+      Logger.error(`ContentUpdatedListener ${error}`);
     }
     Logger.log(`Listener Finished`);
   }

@@ -41,7 +41,7 @@ export class CrawlFinishedListener {
         );
       }
     } catch (error) {
-      Logger.error(error);
+      Logger.error(`handleCrawlFinishedEvent ${error}`);
     }
     Logger.log(`Listener Finished`);
   }

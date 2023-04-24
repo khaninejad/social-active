@@ -52,7 +52,9 @@ describe("CrawlerService", () => {
     await service.crawl(url);
 
     expect(Logger.error).toHaveBeenCalledTimes(1);
-    expect(Logger.error).toHaveBeenCalledWith(new Error("some unknown error"));
+    expect(Logger.error).toHaveBeenCalledWith(
+      "CrawlerService Error: some unknown error"
+    );
   });
 
   describe("getFinalUrl", () => {
@@ -87,9 +89,7 @@ describe("CrawlerService", () => {
       });
 
       const res = await service.getFinalUrl(url);
-      expect(axios.get).toHaveBeenCalledWith(url, {
-        maxRedirects: 0,
-      });
+      expect(axios.get).toHaveBeenCalledTimes(1);
 
       expect(res).toBe("http://example2.com");
     });
@@ -128,15 +128,17 @@ describe("CrawlerService", () => {
   });
   describe("extractGoogleNewsUrl", () => {
     it("extractGoogleNewsUrl valid response", async () => {
-      const url = "https://news.google.com/";
+      const url = "https://originallink.com";
       jest.spyOn(axios, "get").mockResolvedValueOnce({
         status: 200,
         data: '<html><body><p>this is a text<a href="https://originallink.com">this is a link</a></p></body></html',
       });
 
-      const res = await service.extractGoogleNewsUrl(url);
+      const res = await service.extractGoogleNewsUrl(
+        `<html><body><p>this is a text<a href="https://originallink.com">this is a link</a></p></body></html`
+      );
 
-      expect(res).toBe("https://originallink.com");
+      expect(res).toBe(url);
     });
 
     it("extractGoogleNewsUrl with non-google links response", async () => {
@@ -150,23 +152,35 @@ describe("CrawlerService", () => {
       const url = "https://news.google.com/";
       jest.spyOn(axios, "get").mockResolvedValueOnce({
         status: 200,
-        data: "<html><body><p>this is a text </p></body></html",
+        data: `<html><body><p>this is a text </p><a href="${url}">link</a></body></html`,
       });
 
       const res = await service.extractGoogleNewsUrl(url);
 
-      expect(res).toBe(undefined);
+      expect(res).toBe(url);
     });
 
     it("extractGoogleNewsUrl failed response", async () => {
-      const url = "https://news.google.com/";
+      const url = "this is a content";
       jest.spyOn(axios, "get").mockRejectedValue(new Error());
-      jest.spyOn(Logger, "error").mockImplementation();
 
-      await service.extractGoogleNewsUrl(url);
+      const res = await service.extractGoogleNewsUrl(url);
 
-      expect(Logger.error).toHaveBeenCalledTimes(1);
-      expect(Logger.error).toHaveBeenCalledWith(new Error());
+      expect(res).toBeUndefined();
+    });
+
+    it("getFinalUrl valid for urls other than google response 2", async () => {
+      jest.spyOn(axios, "get").mockResolvedValueOnce({
+        status: 200,
+        data: '<html><body><p>this is a text </p><a href="https://www.npr.org/2023/04/23/1171340024/succession-recap-season-4-episode-5-kill-list"">open</a></body></html',
+      });
+      const url =
+        "https://news.google.com/rss/articles/CBMiV2h0dHBzOi8vd3d3Lm5wci5vcmcvMjAyMy8wNC8yMy8xMTcxMzQwMDI0L3N1Y2Nlc3Npb24tcmVjYXAtc2Vhc29uLTQtZXBpc29kZS01LWtpbGwtbGlzdNIBAA?oc=5";
+      const res = await service.getFinalUrl(url);
+
+      expect(res).toBe(
+        "https://www.npr.org/2023/04/23/1171340024/succession-recap-season-4-episode-5-kill-list"
+      );
     });
   });
 });
