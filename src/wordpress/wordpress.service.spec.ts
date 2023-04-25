@@ -124,9 +124,13 @@ describe("WordpressService", () => {
     });
 
     it("should throw error on create a post", async () => {
-      jest
-        .spyOn(service, "getTagIds")
-        .mockRejectedValue(new Error("some error"));
+      const mockCategory = jest.fn().mockRejectedValue(new Error("some error"));
+      const wpapiMock = jest.fn().mockReturnValue({
+        posts: jest.fn().mockReturnThis(),
+        create: mockCategory,
+      });
+
+      (WPAPI as jest.Mock).mockImplementation(wpapiMock);
       const loggerSpy = jest.spyOn(Logger, "error");
 
       const wordpressService = new WordpressService();
@@ -143,6 +147,7 @@ describe("WordpressService", () => {
         ["tags"]
       );
       expect(loggerSpy).toHaveBeenCalled();
+      expect(loggerSpy).toHaveBeenCalledTimes(4);
     });
   });
 
@@ -275,31 +280,30 @@ describe("WordpressService", () => {
     });
 
     it("should get non-exists category", async () => {
-      const mockGetCategory = jest.fn().mockResolvedValue([]);
+      const mockGetTag = jest.fn().mockResolvedValue([]);
       const wpapiMock = jest.fn().mockReturnValue({
-        categories: jest.fn().mockReturnThis(),
-        slug: jest.fn().mockReturnThis(),
-        get: mockGetCategory,
-        create: jest.fn().mockResolvedValue({ id: 23 }),
+        tags: jest.fn().mockReturnThis(),
+        slug: mockGetTag,
+        create: jest.fn().mockResolvedValue({ id: 44 }),
       });
 
       (WPAPI as jest.Mock).mockImplementation(wpapiMock);
 
       const wordpressService = new WordpressService();
 
-      const category = "Test Post";
+      const tag = "Test2";
 
-      const result = await wordpressService.getCategoryIds([category]);
+      const result = await wordpressService.getTagIds([tag]);
 
-      expect(mockGetCategory).toHaveBeenCalled();
-      expect(result).toEqual([23]);
+      expect(mockGetTag).toHaveBeenCalled();
+      expect(result).toEqual([44]);
     });
 
     it("should throw error on category get", async () => {
-      const mockCategory = jest.fn().mockRejectedValue(new Error("some error"));
+      const mockCat = jest.fn().mockRejectedValue(new Error("some error"));
       const wpapiMock = jest.fn().mockReturnValue({
-        categories: jest.fn().mockReturnThis(),
-        create: mockCategory,
+        tags: jest.fn().mockReturnThis(),
+        create: mockCat,
       });
 
       (WPAPI as jest.Mock).mockImplementation(wpapiMock);
@@ -307,7 +311,7 @@ describe("WordpressService", () => {
 
       const wordpressService = new WordpressService();
 
-      await wordpressService.getCategoryIds(["test"]);
+      await wordpressService.getTagIds(["test"]);
       expect(loggerSpy).toHaveBeenCalled();
     });
   });
