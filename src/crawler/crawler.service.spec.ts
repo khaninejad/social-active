@@ -157,7 +157,7 @@ describe("CrawlerService", () => {
 
       const res = await service.extractGoogleNewsUrl(url);
 
-      expect(res).toBe(url);
+      expect(res).toBe(undefined);
     });
 
     it("extractGoogleNewsUrl failed response", async () => {

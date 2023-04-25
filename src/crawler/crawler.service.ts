@@ -44,16 +44,29 @@ export class CrawlerService {
       url = new URLSearchParams(url.split("?")[1]).get("continue");
     }
 
-    const response = await axios.get(url, {
-      maxRedirects: 0,
-    });
+    try {
+      const response = await axios.get(url, {
+        maxRedirects: 0,
+        validateStatus: function (status) {
+          return status >= 200 && status <= 302;
+        },
+        withCredentials: true,
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36",
+          Cookie: "CONSENT=YES+cb.%s-14-p0.en+F+941;",
+        },
+      });
 
-    if (response?.status === 302) {
-      const redirectUrl = response.headers.location;
-      return this.getFinalUrl(redirectUrl);
-    } else {
-      url = await this.extractGoogleNewsUrl(response.data);
-      return url;
+      if (response?.status === 302) {
+        const redirectUrl = response.headers.location;
+        return this.getFinalUrl(redirectUrl);
+      } else {
+        url = await this.extractGoogleNewsUrl(response.data);
+        return url;
+      }
+    } catch (error) {
+      Logger.error(error.code);
     }
   }
 
@@ -64,7 +77,16 @@ export class CrawlerService {
       const urlRegex = /https?:\/\/[^\s"]+/g;
       const urls = response_data.match(urlRegex);
       if (urls) {
-        return urls[0].replace('"', "");
+        const filteredUrls = urls.filter(
+          (url) =>
+            !url.includes("google.com") &&
+            !url.includes("googleusercontent.com") &&
+            !url.includes("gstatic.com") &&
+            !url.includes("googleapis.com") &&
+            !url.includes("google-analytics.com") &&
+            !url.includes("w3.org")
+        );
+        return filteredUrls[filteredUrls.length - 1];
       }
       return undefined;
     }

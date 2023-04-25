@@ -18,7 +18,7 @@ export class TaskService {
     private readonly contentService: ContentService,
     private eventEmitter: EventEmitter2
   ) {
-    this.fetchFeeds().then(() => Logger.log("tasks started"));
+    this.fetchFeeds().then(() => this.logger.log("tasks started"));
   }
   async fetchFeeds() {
     const accounts = await this.accountService.getAll();
@@ -29,22 +29,7 @@ export class TaskService {
 
   addCronJob(name: string, time: string, feeds: string[]): CronJob {
     const job = new CronJob(this.getCronString(time), async () => {
-      this.logger.warn(`time (${time}) for job ${name} to run!`);
-      const rssData = await this.rssService.fetch(feeds);
-      const mapped = rssData?.map((data) => {
-        return {
-          account: name,
-          id: undefined,
-          description: data.description,
-          published: new Date(data.published),
-          title: data.title,
-          link: data.link,
-          created_at: new Date().toISOString(),
-        } as unknown as CreateContentDto;
-      });
-      this.contentService.createMany(mapped);
-      this.eventEmitter.emit("content.updated", new ContentUpdatedEvent(name));
-      this.logger.log(rssData?.length);
+      await this.dispatchJob(time, name, feeds);
     });
 
     this.schedulerRegistry.addCronJob(name, job);
@@ -52,6 +37,25 @@ export class TaskService {
 
     this.logger.warn(`job ${name} added for each time at ${time}!`);
     return job;
+  }
+
+  private async dispatchJob(time: string, name: string, feeds: string[]) {
+    this.logger.warn(`time (${time}) for job ${name} to run!`);
+    const rssData = await this.rssService.fetch(feeds);
+    const mapped = rssData?.map((data) => {
+      return {
+        account: name,
+        id: undefined,
+        description: data.description,
+        published: new Date(data.published),
+        title: data.title,
+        link: data.link,
+        created_at: new Date().toISOString(),
+      } as unknown as CreateContentDto;
+    });
+    this.contentService.createMany(mapped);
+    this.eventEmitter.emit("content.updated", new ContentUpdatedEvent(name));
+    this.logger.log(rssData?.length);
   }
 
   deleteCron(name: string) {

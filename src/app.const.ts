@@ -20,5 +20,21 @@ class configuration {
       throw new Error("twitter envs is not set");
     }
   }
+
+  getWordpressEnv() {
+    if (
+      process.env.WORDPRESS_ENDPOINT &&
+      process.env.WORDPRESS_USERNAME &&
+      process.env.WORDPRESS_PASSWORD
+    ) {
+      return {
+        client_id: process.env.WORDPRESS_ENDPOINT,
+        client_secret: process.env.WORDPRESS_USERNAME,
+        callback: process.env.WORDPRESS_PASSWORD,
+      };
+    } else {
+      throw new Error("WORDPRESS envs is not set");
+    }
+  }
 }
 export default new configuration();

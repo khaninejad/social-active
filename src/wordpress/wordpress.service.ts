@@ -2,16 +2,13 @@ import { Injectable, Logger } from "@nestjs/common";
 import * as WPAPI from "wpapi";
 import axios from "axios";
 import { WordpressResponse } from "./dto/wordpress-response.dto";
+import configuration from "../app.const";
 
 @Injectable()
 export class WordpressService {
   wp: WPAPI;
   constructor() {
-    this.wp = new WPAPI({
-      endpoint: process.env.WORDPRESS_ENDPOINT,
-      username: process.env.WORDPRESS_USERNAME,
-      password: process.env.WORDPRESS_PASSWORD,
-    });
+    this.wp = new WPAPI(configuration.getWordpressEnv());
   }
 
   async createPost(
@@ -124,10 +121,12 @@ export class WordpressService {
     if (!fileName) {
       throw new Error("File path is invalid");
     }
-    const ext = fileName.split(".").pop();
-    if (!ext) {
+
+    if (fileName.split(".").length <= 1) {
       throw new Error("File extension is invalid");
     }
+    const ext = fileName.split(".").pop();
+
     const newFileName = `${title}.${ext}`;
     pathArr.push(newFileName);
     return pathArr.join("/");

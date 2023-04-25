@@ -11,7 +11,6 @@ export class TwitterService {
 
   async tweet(account: string, text: string) {
     const currentAccount = await this.accountService.getAccount(account);
-    this.logger.debug(`access_token: ${currentAccount.access_token}`);
     const authClient = new auth.OAuth2User({
       client_id: currentAccount.credentials.client_id,
       client_secret: currentAccount.credentials.client_secret,
@@ -31,8 +30,7 @@ export class TwitterService {
       });
       return tweet;
     } catch (error) {
-      console.error(account);
-      this.logger.error(`TwitterService ${error.message}`);
+      this.logger.error(`TwitterService ${JSON.stringify(error as Error)}`);
       console.log(`${JSON.stringify(error as Error)}`);
     }
   }
