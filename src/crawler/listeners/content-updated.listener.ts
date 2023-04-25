@@ -7,6 +7,7 @@ import { CrawlFinishedEvent } from "../../events/crawl-finished.event";
 
 @Injectable()
 export class ContentUpdatedListener {
+  private readonly logger = new Logger(ContentUpdatedListener.name);
   constructor(
     private readonly crawlerService: CrawlerService,
     private readonly contentService: ContentService,
@@ -15,52 +16,46 @@ export class ContentUpdatedListener {
 
   @OnEvent("content.updated")
   async handleContentUpdatedEvent(event: ContentUpdatedEvent) {
-    Logger.log(
+    this.logger.log(
       `handleContentUpdatedEvent Listener started ${JSON.stringify(event)}`
     );
     try {
       const contents =
         await this.contentService.getContentsByAccountNameForCrawl(event.name);
       if (contents[0]) {
-        Logger.log(
+        this.logger.log(
           `started to crawl ${contents[0].id} with link of ${contents[0].link}`
         );
         const crawled = await this.crawlerService.crawl(contents[0].link);
-        await this.contentService.updateCrawl({
-          id: contents[0].id,
-          crawl: crawled
-            ? {
-                url: crawled.url,
-                title: crawled.title,
-                description: crawled.description,
-                image: crawled.image,
-                keyword: crawled.keyword,
-                raw_text: crawled.raw_text,
-                crawl_date: new Date(),
-              }
-            : {
-                url: "",
-                title: "",
-                description: "",
-                image: "",
-                keyword: "",
-                raw_text: "",
-                crawl_date: new Date(),
-              },
-        });
         if (crawled) {
-          Logger.log(`crawled and Content Updated`);
+          await this.contentService.updateCrawl({
+            id: contents[0].id,
+            crawl: {
+              url: crawled.url,
+              title: crawled.title,
+              description: crawled.description,
+              image: crawled.image,
+              keyword: crawled.keyword,
+              raw_text: crawled.raw_text,
+              crawl_date: new Date(),
+            },
+          });
+          this.logger.log(`crawled and Content Updated`);
           this.eventEmitter.emit(
             "crawl.finished",
             new CrawlFinishedEvent(contents[0].id)
           );
         } else {
-          Logger.error(`crawl was unsuccessfully`);
+          await this.contentService.updateCrawl({
+            id: contents[0].id,
+            crawl: null,
+          });
+          this.logger.error(`crawl was unsuccessfully`);
         }
       }
     } catch (error) {
-      Logger.error(`ContentUpdatedListener ${error}`);
+      this.logger.error(`ContentUpdatedListener ${error}`);
     }
-    Logger.log(`Listener Finished`);
+    this.logger.log(`Listener Finished`);
   }
 }

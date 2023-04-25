@@ -8,7 +8,12 @@ import configuration from "../app.const";
 export class WordpressService {
   wp: WPAPI;
   constructor() {
-    this.wp = new WPAPI(configuration.getWordpressEnv());
+    const config = configuration.getWordpressEnv();
+    this.wp = new WPAPI({
+      endpoint: config.endpoint,
+      username: config.username,
+      password: config.password,
+    });
   }
 
   async createPost(

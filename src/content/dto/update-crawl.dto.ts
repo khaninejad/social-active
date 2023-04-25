@@ -1,6 +1,6 @@
 export interface UpdateCrawlDto {
   readonly id: string;
-  readonly crawl: {
+  readonly crawl?: {
     url: string;
     title: string;
     description: string;

@@ -28,9 +28,9 @@ class configuration {
       process.env.WORDPRESS_PASSWORD
     ) {
       return {
-        client_id: process.env.WORDPRESS_ENDPOINT,
-        client_secret: process.env.WORDPRESS_USERNAME,
-        callback: process.env.WORDPRESS_PASSWORD,
+        endpoint: process.env.WORDPRESS_ENDPOINT,
+        username: process.env.WORDPRESS_USERNAME,
+        password: process.env.WORDPRESS_PASSWORD,
       };
     } else {
       throw new Error("WORDPRESS envs is not set");
