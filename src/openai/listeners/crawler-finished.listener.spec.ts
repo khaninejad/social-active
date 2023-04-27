@@ -9,6 +9,8 @@ import { GeneratedBlogDto } from "../dto/generated-blog.dto";
 
 const mongooseObjectId = new Schema.Types.ObjectId("123456");
 const crawlFinishedEventMock = new CrawlFinishedEvent(mongooseObjectId);
+process.env.OPENAI_API_KEY = "api-key";
+process.env.OPENAI_MAX_TOKEN = "1234";
 
 describe("ContentUpdatedListener", () => {
   let contentService: ContentService;

@@ -5,10 +5,11 @@ import { CrawlerDataDto } from "./dto/crawler-data.dto";
 
 @Injectable()
 export class CrawlerService {
+  private readonly logger: Logger = new Logger(CrawlerService.name);
   async crawl(url: string): Promise<CrawlerDataDto> {
     try {
       const ultimateUrl = await this.getFinalUrl(url);
-      Logger.debug(ultimateUrl);
+      this.logger.debug(ultimateUrl);
 
       const htmlResponse = await axios.get(ultimateUrl, {
         headers: {
@@ -26,10 +27,10 @@ export class CrawlerService {
         image: $('meta[property="og:image"]').attr("content"),
         raw_text: $("p").text().replace(/\s+/g, " "),
       };
-      Logger.log(`${ultimateUrl} is crawled`);
+      this.logger.log(`${ultimateUrl} is crawled`);
       return crawled_data;
     } catch (error) {
-      Logger.error(`CrawlerService ${error}`);
+      this.logger.error(`CrawlerService ${error}`);
     }
   }
 
@@ -66,7 +67,7 @@ export class CrawlerService {
         return url;
       }
     } catch (error) {
-      Logger.error(error.code);
+      this.logger.error(error);
     }
   }
 

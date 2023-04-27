@@ -1,12 +1,12 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { CrawlerService } from "./crawler.service";
 import { CrawlerDataDto } from "./dto/crawler-data.dto";
-import { Logger } from "@nestjs/common";
 import axios from "axios";
 jest.mock("axios");
 
 describe("CrawlerService", () => {
   let service: CrawlerService;
+  let loggerErrorSpy: jest.SpyInstance;
 
   beforeEach(async () => {
     jest.restoreAllMocks();
@@ -15,6 +15,7 @@ describe("CrawlerService", () => {
     }).compile();
 
     service = module.get<CrawlerService>(CrawlerService);
+    loggerErrorSpy = jest.spyOn(service["logger"], "error");
   });
 
   it("should be defined", () => {
@@ -47,12 +48,11 @@ describe("CrawlerService", () => {
     jest
       .spyOn(service, "getFinalUrl")
       .mockRejectedValue(new Error("some unknown error"));
-    jest.spyOn(Logger, "error").mockImplementation();
 
     await service.crawl(url);
 
-    expect(Logger.error).toHaveBeenCalledTimes(1);
-    expect(Logger.error).toHaveBeenCalledWith(
+    expect(loggerErrorSpy).toHaveBeenCalledTimes(1);
+    expect(loggerErrorSpy).toHaveBeenCalledWith(
       "CrawlerService Error: some unknown error"
     );
   });
@@ -124,6 +124,14 @@ describe("CrawlerService", () => {
       const res = await service.getFinalUrl(url);
 
       expect(res).toBe("http://example5.com");
+    });
+
+    it("getFinalUrl throw error", async () => {
+      const url = "https://news.google.com/";
+      jest.spyOn(axios, "get").mockRejectedValue(new Error("error"));
+      const res = await service.getFinalUrl(url);
+
+      expect(loggerErrorSpy).toHaveBeenCalledWith(new Error("error"));
     });
   });
   describe("extractGoogleNewsUrl", () => {

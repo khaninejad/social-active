@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Configuration, OpenAIApi } from "openai";
 import { GeneratedBlogDto } from "./dto/generated-blog.dto";
+import envConfiguration from "../app.const";
 
 @Injectable()
 export class OpenAIService {
@@ -8,9 +9,7 @@ export class OpenAIService {
   private readonly logger: Logger = new Logger(OpenAIApi.name);
 
   constructor() {
-    const configuration = new Configuration({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
+    const configuration = new Configuration(envConfiguration.getOpenaiEnv());
     this.openai = new OpenAIApi(configuration);
   }
 
@@ -24,7 +23,7 @@ export class OpenAIService {
         temperature: 0.2,
         frequency_penalty: 0,
         presence_penalty: 0,
-        max_tokens: parseInt(process.env.OPENAI_MAX_TOKEN) ?? 1224,
+        max_tokens: envConfiguration.getOpenaiEnv().max_token,
       });
       const generated_content = completions.data.choices[0].text.trim();
       const clean_content = this.cleanString(generated_content);
