@@ -1,13 +1,12 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { OnEvent } from "@nestjs/event-emitter";
 import { PageCrawledEvent } from "../../events/page-crawled.event";
-import { ContentService } from "../content.service";
 
 @Injectable()
 export class PageCrawledListener {
-  constructor(private readonly contentService: ContentService) {}
+  private readonly logger = new Logger(PageCrawledListener.name);
   @OnEvent("page.crawled")
   handlePageCrawledEvent(event: PageCrawledEvent) {
-    Logger.debug(`PageCrawledListener Listener started ${event}`);
+    this.logger.log(`PageCrawledListener Listener started ${event}`);
   }
 }

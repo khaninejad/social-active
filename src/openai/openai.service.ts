@@ -5,6 +5,7 @@ import { GeneratedBlogDto } from "./dto/generated-blog.dto";
 @Injectable()
 export class OpenAIService {
   private openai: OpenAIApi;
+  private readonly logger: Logger = new Logger(OpenAIApi.name);
 
   constructor() {
     const configuration = new Configuration({
@@ -23,17 +24,17 @@ export class OpenAIService {
         temperature: 0.2,
         frequency_penalty: 0,
         presence_penalty: 0,
-        max_tokens: 1224,
+        max_tokens: parseInt(process.env.OPENAI_MAX_TOKEN) ?? 1224,
       });
       const generated_content = completions.data.choices[0].text.trim();
       const clean_content = this.cleanString(generated_content);
-      Logger.warn(`raw data ${clean_content}`);
+      this.logger.warn(`raw data ${clean_content}`);
       const extracted = this.extractJson(
         this.escapeQuotesInATags(clean_content)
       );
       return extracted;
     } catch (error) {
-      Logger.error(`generateText error ${error}`);
+      this.logger.error(`generateText error ${error}`);
     }
   }
 
@@ -56,10 +57,11 @@ export class OpenAIService {
       const jsonStr = str
         .slice(start, end)
         .replace(/\n/g, "")
-        .replace(/ +(?= )/g, "");
+        .replace(/ +(?= )/g, "")
+        .replace(`" "body"`, `", "body"`);
       return JSON.parse(jsonStr) as GeneratedBlogDto;
     } catch (error) {
-      Logger.error(`extractJson ${error}`);
+      this.logger.error(`extractJson ${error}`);
       throw new Error("not contain valid json data");
     }
   }

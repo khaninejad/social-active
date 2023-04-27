@@ -6,7 +6,6 @@ import { ContentUpdatedListener } from "./content-updated.listener";
 import { Model } from "mongoose";
 import { Content } from "../../content/interfaces/content.interface";
 import { CrawlFinishedEvent } from "../../events/crawl-finished.event";
-import { Logger } from "@nestjs/common";
 
 describe("ContentUpdatedListener", () => {
   let contentService: ContentService;

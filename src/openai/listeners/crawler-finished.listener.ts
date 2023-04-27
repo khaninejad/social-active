@@ -3,11 +3,13 @@ import { EventEmitter2, OnEvent } from "@nestjs/event-emitter";
 import { ContentService } from "../../content/content.service";
 import { CrawlFinishedEvent } from "../../events/crawl-finished.event";
 import { OpenAIService } from "../openai.service";
-import { GenerationFinishedEvent } from "src/events/generation-finished.event";
+import { GenerationFinishedEvent } from "../../events/generation-finished.event";
 import { Rules } from "../rule.service";
+import configuration from "../../app.const";
 
 @Injectable()
 export class CrawlFinishedListener {
+  private readonly logger = new Logger(CrawlFinishedListener.name);
   constructor(
     private readonly openAIService: OpenAIService,
     private readonly contentService: ContentService,
@@ -16,16 +18,29 @@ export class CrawlFinishedListener {
 
   @OnEvent("crawl.finished")
   async handleCrawlFinishedEvent(event: CrawlFinishedEvent) {
-    Logger.log(`Listener started handleCrawlFinishedEvent ${event}`);
-    const content = await this.contentService.getContentById(event.id);
-
     try {
+      this.logger.log(`Listener started handleCrawlFinishedEvent ${event}`);
+      const content = await this.contentService.getContentById(event.id);
+
       if (content) {
-        Logger.log(`Started to generate a content for ${content.id}`);
+        this.logger.log(`Started to generate a content for ${content.id}`);
         const roleInstance = this.getRules(content);
-        Logger.warn(roleInstance);
+        const tokenSize = this.openAIService.countTokens(roleInstance);
+
+        if (tokenSize >= configuration.getOpenaiEnv().max_token) {
+          const errorMsg = "You have reached the max token";
+          this.logger.error(errorMsg);
+          throw new Error(errorMsg);
+        }
+
+        this.logger.warn(`token size of request instance: ${tokenSize}`);
         const res = await this.openAIService.generateText(roleInstance);
-        Logger.log(`Content generated for '${JSON.stringify(res)}' post`);
+        const generatedTokenSize = this.openAIService.countTokens(
+          JSON.stringify(res)
+        );
+        this.logger.warn(
+          `token size of generated content: ${generatedTokenSize}`
+        );
         await this.contentService.updateGenerated({
           id: content.id,
           generated: {
@@ -39,13 +54,15 @@ export class CrawlFinishedListener {
           "generation.finished",
           new GenerationFinishedEvent(content.id)
         );
+
+        this.logger.log("triggered");
       }
     } catch (error) {
-      Logger.error(`handleCrawlFinishedEvent ${error}`);
+      this.logger.error(`handleCrawlFinishedEvent ${error}`);
     }
-    Logger.log(`Listener Finished`);
+    this.logger.log(`Listener Finished`);
   }
-  getWebsiteName(url: string): string {
+  private getWebsiteName(url: string): string {
     const urlObject = new URL(url);
     const { hostname } = urlObject;
     const dotIndex = hostname.lastIndexOf(".");
@@ -53,7 +70,7 @@ export class CrawlFinishedListener {
     const websiteName = secondLevelDomain.split(".").pop();
     return websiteName;
   }
-  getRules(content: any): string {
+  private getRules(content: any): string {
     const ruleInstance = new Rules();
 
     ruleInstance.addRole(`rephrase blog content using input and include source in body. Output as JSON with HTML tags in the body for SEO. External link to scientific sources required.

@@ -89,6 +89,7 @@
       ".schema.ts",
       "events",
       "main.ts",
+      ".const.ts",
       ".mock.ts"
     ],
     "coverageDirectory": "../coverage",

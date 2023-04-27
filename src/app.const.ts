@@ -36,5 +36,16 @@ class configuration {
       throw new Error("WORDPRESS envs is not set");
     }
   }
+
+  getOpenaiEnv() {
+    if (process.env.OPENAI_API_KEY && process.env.OPENAI_MAX_TOKEN) {
+      return {
+        api_key: process.env.OPENAI_API_KEY,
+        max_token: parseInt(process.env.OPENAI_MAX_TOKEN) ?? 1224,
+      };
+    } else {
+      throw new Error("OPENAI envs is not set");
+    }
+  }
 }
 export default new configuration();

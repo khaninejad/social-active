@@ -91,21 +91,4 @@ export class CrawlerService {
       return undefined;
     }
   }
-
-  private async crawlBody(url: string): Promise<string> {
-    try {
-      const htmlResponse = await axios.get(url, {
-        withCredentials: true,
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36",
-        },
-      });
-      const html = htmlResponse.data;
-      const $ = load(html);
-      return $("body").html();
-    } catch (error) {
-      Logger.error(`crawlBody ${error}`);
-    }
-  }
 }
