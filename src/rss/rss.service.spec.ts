@@ -59,4 +59,12 @@ describe("RssService", () => {
       expect(res.length).toBeGreaterThan(10);
     });
   });
+
+  describe("fetch", () => {
+    it("should fetch and return merged result", async () => {
+      const res = await service.fetch(["https://news.google.com/rss"]);
+      expect(res).toBeDefined();
+      expect(res.length).toBeGreaterThan(10);
+    });
+  });
 });
