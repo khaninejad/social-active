@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  HttpException,
+  HttpStatus,
   Logger,
   Post,
   Query,
@@ -13,6 +15,8 @@ import { AccountService } from "./account.service";
 import { CreateAccountDto } from "./dto/create-account.dto";
 import { UpdateAccountCredentialsDto } from "./dto/update-account-credentials.dto";
 import configuration from "../app.const";
+import { Account } from "./interfaces/account.interface";
+import { ApiOperation, ApiResponse } from "@nestjs/swagger";
 
 @Controller("account")
 export class AccountController {
@@ -28,18 +32,42 @@ export class AccountController {
   }
 
   @Get("/")
-  async account(@Query("account") account: string): Promise<string> {
-    if (account) {
-      const currentAccount = await this.accountService.getAccount(account);
-      this.authClient = new auth.OAuth2User({
-        client_id: currentAccount.credentials.client_id,
-        client_secret: currentAccount.credentials.client_secret,
-        callback: currentAccount.credentials.callback,
-        scopes: ["tweet.read", "tweet.write", "users.read", "offline.access"],
-      });
-      this.client = new Client(this.authClient);
+  @ApiOperation({ summary: "Get list of the accounts" })
+  async all(
+    @Query("page") page: string,
+    @Query("items_per_page") items_per_page: string
+  ): Promise<Account[]> {
+    try {
+      const allAccounts = await this.accountService.getAll();
+      return allAccounts;
+    } catch (error) {
+      throw new HttpException(
+        "Internal Server error",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
-    return this.accountService.getLoginUrl();
+  }
+
+  @Get("/account")
+  async account(@Query("account") account: string): Promise<string> {
+    try {
+      if (account) {
+        const currentAccount = await this.accountService.getAccount(account);
+        this.authClient = new auth.OAuth2User({
+          client_id: currentAccount.credentials.client_id,
+          client_secret: currentAccount.credentials.client_secret,
+          callback: currentAccount.credentials.callback,
+          scopes: ["tweet.read", "tweet.write", "users.read", "offline.access"],
+        });
+        this.client = new Client(this.authClient);
+      }
+      return this.accountService.getLoginUrl();
+    } catch (error) {
+      throw new HttpException(
+        "Internal Server error",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
   }
 
   @Get("/login")
