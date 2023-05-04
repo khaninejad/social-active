@@ -22,7 +22,9 @@ export class WordpressPublishedListener {
           content.account,
           content.blog.title + " " + content.blog.link
         );
-        this.logger.log(`tweet published ${tweet} post`);
+        if (tweet) {
+          this.logger.log(`tweet published ${tweet} post`);
+        }
       }
     } catch (error) {
       this.logger.error(error);

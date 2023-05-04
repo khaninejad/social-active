@@ -41,7 +41,7 @@ export class CrawlFinishedListener {
           "wordpress.published",
           new WordpressPublishedEvent(content.id)
         );
-        this.logger.log(`Content updated for ${JSON.stringify(res)} post`);
+        this.logger.log(`Content updated for ${JSON.stringify(res.id)} post`);
       }
     } catch (error) {
       this.logger.error(error);
