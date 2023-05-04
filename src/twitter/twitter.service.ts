@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { AccountService } from "../account/account.service";
 import Client, { auth } from "twitter-api-sdk";
+import { CreateAccountDto } from "src/account/dto/create-account.dto";
 
 @Injectable()
 export class TwitterService {
@@ -22,16 +23,27 @@ export class TwitterService {
           refresh_token: currentAccount.refresh_token,
         },
       });
-
-      this.client = new Client(authClient);
-      this.logger.log(`tweet: ${text}`);
-
-      const tweet = await this.client.tweets.createTweet({
-        text: text,
-      });
-      return tweet;
+      if (authClient.isAccessTokenExpired()) {
+        this.logger.error("access token is expired");
+        const token = await authClient.refreshAccessToken();
+        const updateAccount = { account, ...token.token };
+        this.accountService.updateToken(updateAccount as CreateAccountDto);
+        return await this.sendTweet(authClient, text);
+      } else {
+        return await this.sendTweet(authClient, text);
+      }
     } catch (error) {
       this.logger.error(`TwitterService ${JSON.stringify(error as Error)}`);
     }
+  }
+
+  private async sendTweet(authClient: auth.OAuth2User, text: string) {
+    this.client = new Client(authClient);
+    this.logger.log(`tweet: ${text}`);
+
+    const tweet = await this.client.tweets.createTweet({
+      text: text,
+    });
+    return tweet;
   }
 }

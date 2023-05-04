@@ -62,6 +62,7 @@ describe("TwitterService", () => {
       (auth.OAuth2User as jest.Mock).mockReturnValue({
         access_token: mockAccount.access_token,
         refresh_token: mockAccount.refresh_token,
+        isAccessTokenExpired: jest.fn().mockReturnValue(false),
       });
 
       (Client as jest.Mock).mockImplementation(clientMock);
