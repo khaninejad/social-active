@@ -120,11 +120,11 @@ describe("OpenAIService", () => {
   });
 
   it("escapeQuotesInATags", () => {
-    const res = openaiService.escapeQuotesInATags(
+    const res = openaiService.escapeATags(
       `<html><body><p>this is a text<a href="https://originallink.com">this is a link</a></p></body></html`
     );
     expect(res).toBe(
-      `<html><body><p>this is a text<a href=\\\"https://originallink.com\\\">this is a link</a></p></body></html`
+      `<html><body><p>this is a text<a href=\"https://originallink.com\">this is a link</a></p></body></html`
     );
   });
 });
