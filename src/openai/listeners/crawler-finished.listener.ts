@@ -73,7 +73,7 @@ export class CrawlFinishedListener {
   private getRules(content: any): string {
     const ruleInstance = new Rules();
 
-    ruleInstance.addRole(`rephrase blog content using input and include source in body. Output as JSON with HTML tags in the body for SEO. External link to scientific sources required.
+    ruleInstance.addRole(`rephrase blog content using input and include source in body. Output as JSON with HTML tags in the body for SEO. External link to scientific sources required and a tags should be escaped for json string validation
     JSON format:
     {
     "title": "new content title",
