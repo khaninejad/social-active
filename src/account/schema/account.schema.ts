@@ -7,6 +7,8 @@ export const AccountSchema = new mongoose.Schema({
   access_token: String,
   refresh_token: String,
   expires_at: Number,
+  scope: String,
+  token_type: String,
   created_at: Date,
   updated_at: Date,
   status: String,

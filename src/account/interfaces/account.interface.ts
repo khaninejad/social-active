@@ -12,6 +12,8 @@ export interface Account extends Document {
   readonly access_token: string;
   readonly refresh_token: string;
   readonly expires_at: string;
+  readonly scope: string;
+  readonly token_type: string;
   readonly created_at: Date;
   readonly updated_at: Date;
   readonly status: string;
