@@ -3,4 +3,6 @@ export interface CreateAccountDto {
   readonly access_token: string;
   readonly refresh_token: string;
   readonly expires_at: number;
+  readonly scope: string;
+  readonly token_type: string;
 }

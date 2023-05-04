@@ -13,6 +13,8 @@ const mockAccount: CreateAccountDto = {
   access_token: "random_token",
   refresh_token: "random_refresh_account",
   expires_at: 1681219898317,
+  scope: "write",
+  token_type: "bearer",
 };
 
 describe("AccountService", () => {

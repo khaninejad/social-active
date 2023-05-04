@@ -66,4 +66,12 @@ export class AccountService {
   getAccount(account: string): Promise<Account> {
     return this.accountModel.findOne({ account: account }).exec();
   }
+  updateToken(token: CreateAccountDto) {
+    const updated = this.accountModel.findOneAndUpdate(
+      { account: token.account },
+      token,
+      { upsert: true }
+    );
+    return updated;
+  }
 }

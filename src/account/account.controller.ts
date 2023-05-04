@@ -16,7 +16,7 @@ import { CreateAccountDto } from "./dto/create-account.dto";
 import { UpdateAccountCredentialsDto } from "./dto/update-account-credentials.dto";
 import configuration from "../app.const";
 import { Account } from "./interfaces/account.interface";
-import { ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { ApiOperation } from "@nestjs/swagger";
 
 @Controller("account")
 export class AccountController {
