@@ -26,5 +26,8 @@ jobs:
       run: npm run build
     - name: Lint
       run: npm run lint
+
+    - name: Coverage Badge
+      uses: we-cli/coverage-badge-action@v1.0.1
     - name: Test
       run: npm run test:cov
