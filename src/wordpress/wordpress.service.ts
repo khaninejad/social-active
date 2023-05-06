@@ -106,9 +106,7 @@ export class WordpressService {
             slug: this.titleToSlug(tagItem),
           });
           tagIds.push(newTag.id);
-          Logger.warn(`newTag ${JSON.stringify(newTag)}`);
         } else {
-          Logger.warn(`tag ${JSON.stringify(tag)}`);
           tagIds.push(tag[0].id);
         }
       });
