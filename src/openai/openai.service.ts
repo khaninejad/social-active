@@ -20,16 +20,12 @@ export class OpenAIService {
           envConfiguration.getOpenAiEnv().model
         } model with ${envConfiguration.getOpenAiEnv().max_token} max-token`
       );
-      this.logger.error(this.escapeJsonString(prompt));
+      this.logger.warn(this.escapeJsonString(prompt));
       let generated_content = "";
       if (envConfiguration.getOpenAiEnv().model.includes("davinci")) {
-        generated_content = await this.generateTextCompletion(
-          this.escapeJsonString(prompt)
-        );
+        generated_content = await this.generateTextCompletion(prompt);
       } else {
-        generated_content = await this.generateChatCompletion(
-          this.escapeJsonString(prompt)
-        );
+        generated_content = await this.generateChatCompletion(prompt);
       }
 
       this.logger.error(JSON.stringify(generated_content));
@@ -43,42 +39,59 @@ export class OpenAIService {
   }
   async generateTextCompletion(prompt: string) {
     this.logger.log(`generateTextCompletion`);
-    const completions = await this.openai.createCompletion(
-      {
-        model: envConfiguration.getOpenAiEnv().model,
-        prompt: prompt,
-        n: 1,
-        top_p: 1,
-        temperature: 0.2,
-        frequency_penalty: 0,
-        presence_penalty: 0,
-        max_tokens: envConfiguration.getOpenAiEnv().max_token,
-      },
-      { headers: { "Content-Type": "application/json", charset: "utf-8" } }
-    );
-    return completions.data.choices[0].text.trim();
+    try {
+      const completions = await this.openai.createCompletion(
+        {
+          model: envConfiguration.getOpenAiEnv().model,
+          prompt,
+          n: 1,
+          top_p: 1,
+          temperature: 0.2,
+          frequency_penalty: 0,
+          presence_penalty: 0,
+          max_tokens: this.calculateMaxToken(prompt),
+        },
+        { headers: { "Content-Type": "application/json", charset: "utf-8" } }
+      );
+      return completions.data.choices[0].text.trim();
+    } catch (error) {
+      if (error.response) {
+        this.logger.log(error.response.status);
+        this.logger.log(error.response.data);
+      } else {
+        this.logger.log(error.message);
+      }
+    }
   }
 
   async generateChatCompletion(prompt: string) {
     this.logger.log(`generateChatCompletion`);
-    const completions = await this.openai.createChatCompletion(
-      {
-        model: envConfiguration.getOpenAiEnv().model,
-        messages: [{ role: "system", content: prompt }],
-        n: 1,
-        top_p: 1,
-        temperature: 0.2,
-        frequency_penalty: 0,
-        presence_penalty: 0,
-        max_tokens: envConfiguration.getOpenAiEnv().max_token,
-      },
-      { headers: { "Content-Type": "application/json", charset: "utf-8" } }
-    );
-    return completions.data.choices[0].message.content;
+    try {
+      const completions = await this.openai.createChatCompletion(
+        {
+          model: envConfiguration.getOpenAiEnv().model,
+          messages: [{ role: "system", content: prompt }],
+          n: 1,
+          top_p: 1,
+          temperature: 0.2,
+          frequency_penalty: 0,
+          presence_penalty: 0,
+          max_tokens: this.calculateMaxToken(prompt),
+        },
+        { headers: { "Content-Type": "application/json", charset: "utf-8" } }
+      );
+      return completions.data.choices[0].message.content;
+    } catch (error) {
+      if (error.response) {
+        this.logger.log(error.response.status);
+        this.logger.log(error.response.data);
+      } else {
+        this.logger.log(error.message);
+      }
+    }
   }
 
-  escapeJsonString(str: string): string {
-    // define the characters that need to be escaped
+  private escapeJsonString(str: string): string {
     const charsToEscape: { [char: string]: string } = {
       "\b": "\\b",
       "\f": "\\f",
@@ -89,7 +102,6 @@ export class OpenAIService {
       "\\": "\\\\",
     };
 
-    // iterate through each character in the string and replace if necessary
     return str.replace(
       /[\b\f\n\r\t"\\]/g,
       (match: string) => charsToEscape[match]
@@ -99,6 +111,13 @@ export class OpenAIService {
   countTokens(str: string): number {
     const tokens = str.trim().split(/\s+/);
     return tokens.length;
+  }
+  calculateMaxToken(str): number {
+    const currentTokenCount = this.countTokens(str);
+    this.logger.log(`currentTokenCount ${currentTokenCount}`);
+    const request_token = 4097 - (currentTokenCount + 800);
+    this.logger.log(`request_token ${request_token}`);
+    return request_token;
   }
 
   cleanString(str: string): string {
