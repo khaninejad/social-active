@@ -1,5 +1,4 @@
 import { OpenAIService } from "./openai.service";
-import configuration from "../app.const";
 process.env.OPENAI_API_KEY = "api-key";
 process.env.OPENAI_MAX_TOKEN = "1234";
 
@@ -175,7 +174,7 @@ describe("OpenAIService", () => {
       process.env.OPENAI_MODEL = "text-003";
       createChatCompletionMock.mockResolvedValue({
         data: {
-          choices: [{ message: { content: "this is output"} }],
+          choices: [{ message: { content: "this is output" } }],
         },
       });
 
