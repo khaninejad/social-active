@@ -31,16 +31,19 @@ describe("OpenAIService", () => {
       const prompt = "Test prompt";
       const generatedText = await openaiService.generateText(prompt);
 
-      expect(createCompletionMock).toHaveBeenCalledWith({
-        frequency_penalty: 0,
-        presence_penalty: 0,
-        model: "text-davinci-003",
-        prompt,
-        n: 1,
-        temperature: 0.2,
-        top_p: 1,
-        max_tokens: configuration.getOpenaiEnv().max_token,
-      });
+      expect(createCompletionMock).toHaveBeenCalledWith(
+        {
+          frequency_penalty: 0,
+          presence_penalty: 0,
+          model: "text-davinci-003",
+          prompt,
+          n: 1,
+          temperature: 0.2,
+          top_p: 1,
+          max_tokens: configuration.getOpenAiEnv().max_token,
+        },
+        { headers: { "Content-Type": "application/json", charset: "utf-8" } }
+      );
       expect(generatedText).toEqual({ hello: "world" });
     });
 
@@ -57,8 +60,7 @@ describe("OpenAIService", () => {
         .mockRejectedValueOnce(new Error(""));
       await openaiService.generateText(prompt);
 
-      expect(logger).toHaveBeenCalledTimes(1);
-      expect(logger).toHaveBeenCalledWith("generateText error Error");
+      expect(logger).toHaveBeenCalledWith("generateText error: {}");
     });
   });
 

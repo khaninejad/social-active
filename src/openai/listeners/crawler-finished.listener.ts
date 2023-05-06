@@ -28,7 +28,7 @@ export class CrawlFinishedListener {
         const roleInstance = prompt.getPrompt(content);
         const tokenSize = this.openAIService.countTokens(roleInstance);
 
-        if (tokenSize >= configuration.getOpenaiEnv().max_token) {
+        if (tokenSize >= configuration.getOpenAiEnv().max_token) {
           const errorMsg = "You have reached the max token";
           this.logger.error(errorMsg);
           throw new Error(errorMsg);

@@ -37,11 +37,12 @@ class configuration {
     }
   }
 
-  getOpenaiEnv() {
+  getOpenAiEnv() {
     if (process.env.OPENAI_API_KEY && process.env.OPENAI_MAX_TOKEN) {
       return {
         apiKey: process.env.OPENAI_API_KEY,
         max_token: parseInt(process.env.OPENAI_MAX_TOKEN) ?? 1224,
+        model: process.env.OPENAI_MODEL ?? "text-davinci-003",
       };
     } else {
       throw new Error("OPENAI envs is not set");
