@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { Model } from "mongoose";
 import { ACCOUNT_MODEL } from "../app.const";
 import { Account } from "./interfaces/account.interface";

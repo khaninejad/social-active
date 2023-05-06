@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 import { AccountController } from "./account.controller";
 import { AccountService } from "./account.service";
-import { DatabaseModule } from "src/database/database.module";
+import { DatabaseModule } from "../database/database.module";
 import { accountsProviders } from "./content.providers";
 
 @Module({

@@ -1,4 +1,4 @@
-import { Model, ObjectId } from "mongoose";
+import { ObjectId } from "mongoose";
 
 export class CrawlFinishedEvent {
   id: ObjectId;

@@ -129,7 +129,7 @@ describe("CrawlerService", () => {
     it("getFinalUrl throw error", async () => {
       const url = "https://news.google.com/";
       jest.spyOn(axios, "get").mockRejectedValue(new Error("error"));
-      const res = await service.getFinalUrl(url);
+      await service.getFinalUrl(url);
 
       expect(loggerErrorSpy).toHaveBeenCalledWith(new Error("error"));
     });
