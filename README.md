@@ -1,3 +1,4 @@
++ [![cov](https://khaninejad.github.io/social-active/badges/coverage.svg)](https://github.com/khaninejad/social-active/actions)
 # Social-Active
 
 Social-Active is a backend package for a social media application built using the NestJS framework. It includes various functionalities such as feed extraction, scheduling, and API integrations with Twitter, WordPress and OpenAI GPT-3.

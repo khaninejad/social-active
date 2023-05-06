@@ -1,8 +1,8 @@
 {
   "name": "social-active",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "Social-Active is a backend package for a social media applications ",
+  "author": "Payam Khaninejad",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
