@@ -17,7 +17,7 @@ export class Prompt {
     "title": "new content title",
     "category": "new category",
     "tags": "new tags",
-    "body": "new content (min. 500 words, separate paragraphs with <p> tag, escape <a> tags quotes like \") including content_source and content_source_url"
+    "body": "new content (min. 500 words, separate paragraphs with <p> tag, escape double quotes include <a> tags quotes like \") including content_source and content_source_url"
     }
     JSON template:
     {
