@@ -1,73 +1,83 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Social-Active
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Social-Active is a backend package for a social media application built using the NestJS framework. It includes various functionalities such as feed extraction, scheduling, and API integrations with Twitter, WordPress and OpenAI GPT-3.
+Please note that this package is not production-ready and is still in development.
 
 ## Installation
 
-```bash
-$ npm install
+Before installing this package, make sure you have Node.js and npm installed on your system.
+
+1. Clone this repository or download the source code.
+2. Open a terminal and navigate to the root directory of the package.
+3. Run the command `npm install` to install all the dependencies.
+
+
+### MongoDB Container
+
+The Social-Active package requires a running instance of MongoDB to store data. To start a MongoDB container, run the following command:
+
+```
+docker-compose up -d
 ```
 
-## Running the app
+This will start a MongoDB container in the background. You can stop the container by running the following command:
 
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+```
+docker-compose down
 ```
 
-## Test
+### Environment Variables
 
-```bash
-# unit tests
-$ npm run test
+The package requires several environment variables to be set before it can be used. You can set these environment variables in a .env file in the root directory of the package. Here are the required environment variables:
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+```
+PORT=3000
+CLIENT_ID=
+CLIENT_SECRET=
+CLIENT_CALLBACK=
+LOGIN_URL=
+MONGODB_CONNECTION_STRING=mongodb://mongoadmin:secret@localhost:27017/social-active?authSource=admin
+WORDPRESS_ENDPOINT=
+WORDPRESS_USERNAME=
+WORDPRESS_PASSWORD=
+OPENAI_API_KEY=
+OPENAI_MAX_TOKEN=
 ```
 
-## Support
+You will need to update these environment variables with your own values before using the package.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## Usage
 
-## Stay in touch
+Social-Active provides various scripts that can be executed using the npm command. Here are some of the most common scripts:
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- `npm run build`: Compiles the TypeScript code into JavaScript.
+- `npm run format`: Formats the code using Prettier.
+- `npm start`: Starts the application in production mode.
+- `npm run start:dev`: Starts the application in development mode with live-reload.
+- `npm run start:debug`: Starts the application in debug mode with live-reload.
+- `npm run lint`: Lints the code using ESLint.
+- `npm run fix`: Fixes the linting errors automatically.
+- `npm test`: Runs the tests using Jest.
+- `npm run test:watch`: Runs the tests in watch mode.
+- `npm run test:cov`: Runs the tests and generates a coverage report.
+- `npm run test:e2e`: Runs the end-to-end tests using Jest.
 
-## License
+## Dependencies
 
-Nest is [MIT licensed](LICENSE).
+Here is a list of the main dependencies used in this package:
+
+- [@nestjs/common](https://www.npmjs.com/package/@nestjs/common): A collection of utilities and classes used across the NestJS framework.
+- [@nestjs/config](https://www.npmjs.com/package/@nestjs/config): A module that provides a clean and easy way to load configuration files.
+- [@nestjs/core](https://www.npmjs.com/package/@nestjs/core): The core module of the NestJS framework.
+- [@nestjs/event-emitter](https://www.npmjs.com/package/@nestjs/event-emitter): A module that provides an event emitter for the NestJS framework.
+- [@nestjs/mongoose](https://www.npmjs.com/package/@nestjs/mongoose): A module that integrates the Mongoose library with the NestJS framework.
+- [@nestjs/platform-express](https://www.npmjs.com/package/@nestjs/platform-express): A module that provides the ExpressJS adapter for the NestJS framework.
+- [@nestjs/schedule](https://www.npmjs.com/package/@nestjs/schedule): A module that provides a clean and easy way to schedule tasks in the NestJS framework.
+- [@nestjs/swagger](https://www.npmjs.com/package/@nestjs/swagger): A module that provides automatic generation of OpenAPI (Swagger) documentation for the NestJS framework.
+- [axios](https://www.npmjs.com/package/axios): A promise-based HTTP client for Node.js.
+- [cheerio](https://www.npmjs.com/package/cheerio): A jQuery-like tool for parsing and manipulating HTML.
+- [dotenv](https://www.npmjs.com/package/dotenv): A module that loads environment variables from a .env file.
+- [mongoose](https://www.npmjs.com/package/mongoose): A MongoDB object modeling tool designed to work in an asynchronous environment.
+- [openai](https://www.npmjs.com/package/openai): A module that provides an interface for the OpenAI GPT-3 API.
+- [rxjs](https://www.npmjs.com/package/rxjs): A library for reactive programming using Observables.
+- [twitter-api-sdk](https://www.npmjs.com/package/twitter): Twitter official api
