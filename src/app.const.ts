@@ -7,14 +7,14 @@ export const ACCOUNT_MODEL_NAME = "account";
 class configuration {
   getTwitterEnv() {
     if (
-      process.env.CLIENT_ID &&
-      process.env.CLIENT_SECRET &&
-      process.env.CLIENT_CALLBACK
+      process.env.TWITTER_CLIENT_ID &&
+      process.env.TWITTER_CLIENT_SECRET &&
+      process.env.TWITTER_CLIENT_CALLBACK
     ) {
       return {
-        client_id: process.env.CLIENT_ID,
-        client_secret: process.env.CLIENT_SECRET,
-        callback: process.env.CLIENT_CALLBACK,
+        client_id: process.env.TWITTER_CLIENT_ID,
+        client_secret: process.env.TWITTER_CLIENT_SECRET,
+        callback: process.env.TWITTER_CLIENT_CALLBACK,
       };
     } else {
       throw new Error("twitter envs is not set");

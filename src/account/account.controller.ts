@@ -54,8 +54,8 @@ export class AccountController {
       if (account) {
         const currentAccount = await this.accountService.getAccount(account);
         this.authClient = new auth.OAuth2User({
-          client_id: currentAccount.credentials.client_id,
-          client_secret: currentAccount.credentials.client_secret,
+          client_id: currentAccount.credentials.TWITTER_CLIENT_ID,
+          client_secret: currentAccount.credentials.TWITTER_CLIENT_SECRET,
           callback: currentAccount.credentials.callback,
           scopes: ["tweet.read", "tweet.write", "users.read", "offline.access"],
         });

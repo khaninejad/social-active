@@ -1,8 +1,8 @@
 export interface UpdateAccountCredentialsDto {
   readonly account: string;
   readonly credentials: {
-    client_id: string;
-    client_secret: string;
+    TWITTER_CLIENT_ID: string;
+    TWITTER_CLIENT_SECRET: string;
     callback: string;
   };
 }

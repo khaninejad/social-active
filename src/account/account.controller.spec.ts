@@ -151,8 +151,8 @@ describe("AccountController", () => {
         feeds: [],
         config: {},
         credentials: {
-          client_id: "client-id",
-          client_secret: "client-secret",
+          TWITTER_CLIENT_ID: "client-id",
+          TWITTER_CLIENT_SECRET: "client-secret",
           callback: "http://example.com/callnback",
         },
       };
@@ -163,8 +163,8 @@ describe("AccountController", () => {
       const req = {
         account: "account1",
         credentials: {
-          client_id: "client-id",
-          client_secret: "client-secret",
+          TWITTER_CLIENT_ID: "client-id",
+          TWITTER_CLIENT_SECRET: "client-secret",
           callback: "http://example.com/callnback",
         },
       };
@@ -184,8 +184,8 @@ describe("AccountController", () => {
         feeds: [],
         config: {},
         credentials: {
-          client_id: "client-id",
-          client_secret: "client-secret",
+          TWITTER_CLIENT_ID: "client-id",
+          TWITTER_CLIENT_SECRET: "client-secret",
           callback: "http://example.com/callnback",
         },
       };

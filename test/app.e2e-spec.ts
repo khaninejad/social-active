@@ -7,9 +7,9 @@ process.env.WORDPRESS_ENDPOINT = "http://ok.com";
 process.env.WORDPRESS_USERNAME = "username";
 process.env.WORDPRESS_PASSWORD = "password";
 
-process.env.CLIENT_ID = "client";
-process.env.CLIENT_SECRET = "secret";
-process.env.CLIENT_CALLBACK = "http://exampl.com/callback";
+process.env.TWITTER_CLIENT_ID = "client";
+process.env.TWITTER_CLIENT_SECRET = "secret";
+process.env.TWITTER_CLIENT_CALLBACK = "http://exampl.com/callback";
 
 process.env.OPENAI_API_KEY = "api-key";
 process.env.OPENAI_MAX_TOKEN = "1234";

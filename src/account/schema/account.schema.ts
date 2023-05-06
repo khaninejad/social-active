@@ -3,7 +3,11 @@ export const AccountSchema = new mongoose.Schema({
   account: { type: String, unique: true, index: true },
   feeds: [String],
   config: { reminder: String },
-  credentials: { client_id: String, client_secret: String, callback: String },
+  credentials: {
+    TWITTER_CLIENT_ID: String,
+    TWITTER_CLIENT_SECRET: String,
+    callback: String,
+  },
   access_token: String,
   refresh_token: String,
   expires_at: Number,

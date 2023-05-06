@@ -39,8 +39,8 @@ describe("TwitterService", () => {
       const tweetText = "Hello Twitter!";
       const mockAccount = {
         credentials: {
-          client_id: "client_id",
-          client_secret: "client_secret",
+          TWITTER_CLIENT_ID: "TWITTER_CLIENT_ID",
+          TWITTER_CLIENT_SECRET: "TWITTER_CLIENT_SECRET",
           callback: "callback",
         },
         access_token: "access_token",
