@@ -108,23 +108,4 @@ describe("ContentUpdatedListener", () => {
       );
     });
   });
-
-  describe("getWebsiteName", () => {
-    it("getWebsiteName valid request", () => {
-      const res = listener["getWebsiteName"]("http://example.com");
-      expect(res).toBe("example");
-    });
-  });
-
-  describe("getRules", () => {
-    it("getRules valid request", () => {
-      const res = listener["getRules"]({
-        title: "test",
-        link: "https://google.com",
-        description: "description",
-        crawl: { url: "http://url.com" },
-      });
-      expect(res).toBeTruthy();
-    });
-  });
 });
