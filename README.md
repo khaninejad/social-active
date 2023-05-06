@@ -32,9 +32,9 @@ The package requires several environment variables to be set before it can be us
 
 ```
 PORT=3000
-CLIENT_ID=
-CLIENT_SECRET=
-CLIENT_CALLBACK=
+TWITTER_CLIENT_ID=
+TWITTER_CLIENT_SECRET=
+TWITTER_CLIENT_CALLBACK=
 LOGIN_URL=
 MONGODB_CONNECTION_STRING=mongodb://mongoadmin:secret@localhost:27017/social-active?authSource=admin
 WORDPRESS_ENDPOINT=
