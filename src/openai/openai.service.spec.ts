@@ -7,7 +7,6 @@ describe("OpenAIService", () => {
   let createCompletionMock: jest.Mock;
   let createChatCompletionMock: jest.Mock;
   let logger: jest.SpyInstance;
-  let loggerLog: jest.SpyInstance;
 
   beforeEach(() => {
     createCompletionMock = jest.fn();
@@ -21,7 +20,6 @@ describe("OpenAIService", () => {
     process.env.OPENAI_MAX_TOKEN = "1500";
     process.env.OPENAI_API_KEY = "api-key";
     logger = jest.spyOn(openaiService["logger"], "error");
-    loggerLog = jest.spyOn(openaiService["logger"], "log");
   });
 
   describe("generateText", () => {
@@ -249,7 +247,6 @@ describe("OpenAIService", () => {
       );
       expect(generatedText).toEqual(`this is output`);
     });
-
 
     it("should fail on call generateChatCompletion ", async () => {
       process.env.OPENAI_MODEL = "text-003";
