@@ -46,17 +46,6 @@ export class TwitterService {
     }
   }
 
-  async getUserProfile(account: string) {
-    try {
-      const authClient = await this.getAuthClient(account);
-      this.client = new Client(authClient);
-      const user = this.client.users.findMyUser();
-      this.logger.debug(user);
-    } catch (error) {
-      this.logger.error(`getUserProfile ${JSON.stringify(error as Error)}`);
-    }
-  }
-
   private async sendTweet(authClient: auth.OAuth2User, text: string) {
     this.client = new Client(authClient);
     this.logger.log(`tweet: ${text}`);
