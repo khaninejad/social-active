@@ -15,7 +15,7 @@ export class WordpressService {
       password: config.password,
     });
   }
-
+  // todo: check for duplicate posts before creating it
   async createPost(
     title: string,
     content: string,

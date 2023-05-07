@@ -15,6 +15,26 @@ const mockAccount: CreateAccountDto = {
   expires_at: 1681219898317,
   scope: "write",
   token_type: "bearer",
+  config: {
+    reminder: "2h",
+  },
+  credentials: {
+    client_id: "",
+    client_secret: "",
+    callback: "",
+  },
+  twitter: {
+    id: "",
+    username: "",
+    name: "",
+    url: "",
+    description: "",
+    profile_image_url: "",
+    location: "",
+    verified: "",
+    created_at: "",
+  },
+  feeds: "http://example.com\nhttp://example2.com",
 };
 
 describe("AccountService", () => {
@@ -62,6 +82,7 @@ describe("AccountService", () => {
       access_token: "random_token",
       refresh_token: "random_refresh_account",
       expires_at: 1681219898317,
+      feeds: "http://example.com\nhttp://example2.com",
     } as CreateAccountDto);
     expect(newContent).toEqual(mockAccount);
   });

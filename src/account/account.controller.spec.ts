@@ -44,7 +44,7 @@ describe("AccountController", () => {
       const res = {
         redirect: jest.fn(),
       };
-      await controller.login(res);
+      await controller.twitter_login(res);
 
       expect(res.redirect).toHaveBeenCalledWith(authUrl);
     });
@@ -58,6 +58,11 @@ describe("AccountController", () => {
       access_token: "access_token",
       refresh_token: "refresh_token",
       expires_in: 3600,
+      twitter: {
+        id: "123",
+        name: "John Doe",
+        username: "johndoe",
+      },
     };
     const my_user = {
       data: {
@@ -76,7 +81,7 @@ describe("AccountController", () => {
         .mockResolvedValue(my_user);
       jest.spyOn(service, "create").mockImplementation();
 
-      const result = await controller.callback(code, state);
+      const result = await controller.twitterCallback(code, state);
 
       expect(result).toBe(JSON.stringify(my_user));
       expect(controller["authClient"].requestAccessToken).toHaveBeenCalledWith(
@@ -92,9 +97,9 @@ describe("AccountController", () => {
     it("should throw an error if the state is not valid", async () => {
       const invalidState = "invalid-state";
 
-      await expect(controller.callback(code, invalidState)).rejects.toThrow(
-        "State is not valid"
-      );
+      await expect(
+        controller.twitterCallback(code, invalidState)
+      ).rejects.toThrow("State is not valid");
     });
   });
 

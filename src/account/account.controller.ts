@@ -6,9 +6,11 @@ import {
   HttpStatus,
   Logger,
   Post,
+  Put,
   Query,
   Req,
   Res,
+  UnauthorizedException,
 } from "@nestjs/common";
 import Client, { auth } from "twitter-api-sdk";
 import { AccountService } from "./account.service";
@@ -17,6 +19,8 @@ import { UpdateAccountCredentialsDto } from "./dto/update-account-credentials.dt
 import configuration from "../app.const";
 import { Account } from "./interfaces/account.interface";
 import { ApiOperation } from "@nestjs/swagger";
+import { LoginRequestDto } from "./dto/login-request.dto";
+import { LoginVerifyTokenDto } from "./dto/login-verify-token.dto";
 
 @Controller("account")
 export class AccountController {
@@ -70,8 +74,8 @@ export class AccountController {
     }
   }
 
-  @Get("/login")
-  async login(@Res() res): Promise<any> {
+  @Get("/twitter_login")
+  async twitter_login(@Res() res): Promise<any> {
     const authUrl = this.authClient.generateAuthURL({
       code_challenge_method: "s256",
       state: this.STATE,
@@ -80,16 +84,30 @@ export class AccountController {
   }
 
   @Get("/callback")
-  async callback(
+  async twitterCallback(
     @Query("code") code: string,
     @Query("state") state: string
   ): Promise<string> {
     try {
       if (state !== this.STATE) throw new Error("State is not valid");
       const token = await this.authClient.requestAccessToken(code as string);
-      const my_user = await this.client.users.findMyUser();
+      const my_user = await this.client.users.findMyUser({
+        "user.fields": [
+          "description",
+          "profile_image_url",
+          "id",
+          "username",
+          "name",
+          "url",
+          "created_at",
+          "location",
+          "verified",
+        ],
+      });
+      Logger.log(my_user.data);
       this.accountService.create({
         account: my_user.data.username,
+        twitter: { ...my_user.data },
         ...(token.token as CreateAccountDto),
       });
       return JSON.stringify(my_user);
@@ -125,5 +143,50 @@ export class AccountController {
       updateAccountCredentialsDto
     );
     return res;
+  }
+
+  @Post("/login")
+  async login(@Body() loginDto: LoginRequestDto): Promise<any> {
+    if (
+      loginDto.email === process.env.EMAIL &&
+      loginDto.password === process.env.PASSWORD
+    ) {
+      return {
+        api_token: `token ${loginDto.email} ${loginDto.password}`,
+        refreshToken: "refresh_token",
+      };
+    } else {
+      throw new UnauthorizedException("email or password is not valid");
+    }
+  }
+
+  @Post("/verify_token")
+  async verifyToken(@Body() verifyTokenDto: LoginVerifyTokenDto): Promise<any> {
+    Logger.log(verifyTokenDto);
+    return {
+      id: 1,
+      username: "username",
+      email: "email@email.com",
+      firstname: "system",
+    };
+  }
+
+  @Put("/")
+  async createAccount(
+    @Body() createAccountDto: CreateAccountDto
+  ): Promise<any> {
+    Logger.log(createAccountDto);
+    try {
+      await this.accountService.create({
+        ...createAccountDto,
+        credentials: {
+          client_id: createAccountDto.credentials.client_id,
+          client_secret: createAccountDto.credentials.client_secret,
+          callback: process.env.TWITTER_CLIENT_CALLBACK,
+        },
+      });
+    } catch (error) {
+      Logger.error(error);
+    }
   }
 }
