@@ -12,6 +12,15 @@ export class TwitterService {
 
   async tweet(account: string, text: string) {
     try {
+      const authClient = await this.getAuthClient(account);
+      return await this.sendTweet(authClient, text);
+    } catch (error) {
+      this.logger.error(`tweet ${JSON.stringify(error as Error)}`);
+    }
+  }
+
+  private async getAuthClient(account: string) {
+    try {
       const currentAccount = await this.accountService.getAccount(account);
       const authClient = new auth.OAuth2User({
         client_id: currentAccount.credentials.TWITTER_CLIENT_ID,
@@ -23,17 +32,28 @@ export class TwitterService {
           refresh_token: currentAccount.refresh_token,
         },
       });
-      if (authClient.isAccessTokenExpired()) {
+      if (!authClient.isAccessTokenExpired()) {
+        return authClient;
+      } else {
         this.logger.error("access token is expired");
         const token = await authClient.refreshAccessToken();
         const updateAccount = { account, ...token.token };
         this.accountService.updateToken(updateAccount as CreateAccountDto);
-        return await this.sendTweet(authClient, text);
-      } else {
-        return await this.sendTweet(authClient, text);
+        return authClient;
       }
     } catch (error) {
-      this.logger.error(`TwitterService ${JSON.stringify(error as Error)}`);
+      this.logger.error(`getAuthClient ${JSON.stringify(error as Error)}`);
+    }
+  }
+
+  async getUserProfile(account: string) {
+    try {
+      const authClient = await this.getAuthClient(account);
+      this.client = new Client(authClient);
+      const user = this.client.users.findMyUser();
+      this.logger.debug(user);
+    } catch (error) {
+      this.logger.error(`getUserProfile ${JSON.stringify(error as Error)}`);
     }
   }
 

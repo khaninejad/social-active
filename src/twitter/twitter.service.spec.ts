@@ -83,7 +83,7 @@ describe("TwitterService", () => {
       await service.tweet(accountName, tweetText);
 
       expect(loggerErrorSpy).toHaveBeenCalledTimes(1);
-      expect(loggerErrorSpy).toHaveBeenCalledWith("TwitterService {}");
+      expect(loggerErrorSpy).toHaveBeenCalledWith("getAuthClient {}");
     });
   });
 });
