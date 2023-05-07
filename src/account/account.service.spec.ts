@@ -7,6 +7,7 @@ import { ACCOUNT_MODEL } from "../app.const";
 import { UpdateAccountFeedDto } from "./dto/update-account-feed.dto";
 import { UpdateAccountConfigDto } from "./dto/update-account-config.dto";
 import { UpdateAccountCredentialsDto } from "./dto/update-account-credentials.dto";
+import { UpdateAccountTokenDto } from "./dto/update-account-token.dto";
 
 const mockAccount: CreateAccountDto = {
   account: "account1",
@@ -145,5 +146,22 @@ describe("AccountService", () => {
     expect(updated).toEqual(
       'Follow the link for <a href="undefined">login</a>'
     );
+  });
+
+  it("should update token of account", async () => {
+    jest
+      .spyOn(model, "findOneAndUpdate")
+      .mockResolvedValueOnce(mockAccount as any);
+    const updated = await service.updateToken({
+      account: "account1",
+      token: {
+        access_token: "test",
+        expires_at: 123456,
+        refresh_token: "refresh_token",
+        scope: "offline",
+        token_type: "bearer",
+      },
+    } as UpdateAccountTokenDto);
+    expect(updated).toEqual(mockAccount);
   });
 });

@@ -6,6 +6,7 @@ import { CreateAccountDto } from "./dto/create-account.dto";
 import { UpdateAccountFeedDto } from "./dto/update-account-feed.dto";
 import { UpdateAccountConfigDto } from "./dto/update-account-config.dto";
 import { UpdateAccountCredentialsDto } from "./dto/update-account-credentials.dto";
+import { UpdateAccountTokenDto } from "./dto/update-account-token.dto";
 
 @Injectable()
 export class AccountService {
@@ -66,10 +67,12 @@ export class AccountService {
   async getAll(): Promise<Account[]> {
     return this.accountModel.find().exec();
   }
-  getAccount(account: string): Promise<Account> {
+
+  async getAccount(account: string): Promise<Account> {
     return this.accountModel.findOne({ account: account }).exec();
   }
-  updateToken(token: CreateAccountDto) {
+
+  async updateToken(token: UpdateAccountTokenDto) {
     const updated = this.accountModel.findOneAndUpdate(
       { account: token.account },
       token,
