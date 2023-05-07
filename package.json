@@ -83,7 +83,7 @@
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
-    "coverageReporters": ["json-summary", "lcov"],
+    "coverageReporters": ["json-summary", "lcov", "text"],
     "coveragePathIgnorePatterns": [
       "node_modules",
       "test-config",
