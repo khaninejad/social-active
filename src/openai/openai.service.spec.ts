@@ -7,6 +7,7 @@ describe("OpenAIService", () => {
   let createCompletionMock: jest.Mock;
   let createChatCompletionMock: jest.Mock;
   let logger: jest.SpyInstance;
+  let loggerLog: jest.SpyInstance;
 
   beforeEach(() => {
     createCompletionMock = jest.fn();
@@ -20,6 +21,7 @@ describe("OpenAIService", () => {
     process.env.OPENAI_MAX_TOKEN = "1500";
     process.env.OPENAI_API_KEY = "api-key";
     logger = jest.spyOn(openaiService["logger"], "error");
+    loggerLog = jest.spyOn(openaiService["logger"], "log");
   });
 
   describe("generateText", () => {
@@ -170,6 +172,57 @@ describe("OpenAIService", () => {
       expect(generatedText).toEqual(`{\"hello\": \"world\"}`);
     });
 
+    it("should fail on call generateTextCompletion ", async () => {
+      process.env.OPENAI_MODEL = "text-davinci-003";
+      createCompletionMock.mockRejectedValue(new Error("error"));
+
+      const prompt = "Test prompt";
+      await openaiService.generateTextCompletion(prompt);
+
+      expect(createCompletionMock).toHaveBeenCalledWith(
+        {
+          frequency_penalty: 0,
+          presence_penalty: 0,
+          model: "text-davinci-003",
+          prompt,
+          n: 1,
+          temperature: 0.2,
+          top_p: 1,
+          max_tokens: openaiService.calculateMaxToken(prompt),
+        },
+        { headers: { "Content-Type": "application/json", charset: "utf-8" } }
+      );
+      expect(logger).toHaveBeenCalledWith("error");
+    });
+
+    it("should fail on openai api response generateTextCompletion ", async () => {
+      process.env.OPENAI_MODEL = "text-davinci-003";
+      createCompletionMock.mockRejectedValue({
+        response: {
+          data: "some error",
+          status: "invalid input",
+        },
+      });
+
+      const prompt = "Test prompt";
+      await openaiService.generateTextCompletion(prompt);
+
+      expect(createCompletionMock).toHaveBeenCalledWith(
+        {
+          frequency_penalty: 0,
+          presence_penalty: 0,
+          model: "text-davinci-003",
+          prompt,
+          n: 1,
+          temperature: 0.2,
+          top_p: 1,
+          max_tokens: openaiService.calculateMaxToken(prompt),
+        },
+        { headers: { "Content-Type": "application/json", charset: "utf-8" } }
+      );
+      expect(logger).toHaveBeenCalledWith("invalid input");
+    });
+
     it("should call generateChatCompletion with correct arguments", async () => {
       process.env.OPENAI_MODEL = "text-003";
       createChatCompletionMock.mockResolvedValue({
@@ -195,6 +248,32 @@ describe("OpenAIService", () => {
         { headers: { "Content-Type": "application/json", charset: "utf-8" } }
       );
       expect(generatedText).toEqual(`this is output`);
+    });
+
+
+    it("should fail on call generateChatCompletion ", async () => {
+      process.env.OPENAI_MODEL = "text-003";
+      createChatCompletionMock.mockRejectedValue(new Error("error"));
+
+      const prompt = "Test prompt";
+      await openaiService.generateChatCompletion(prompt);
+
+      expect(logger).toHaveBeenCalledWith("error");
+    });
+
+    it("should fail on openai api response generateChatCompletion ", async () => {
+      process.env.OPENAI_MODEL = "text-003";
+      createChatCompletionMock.mockRejectedValue({
+        response: {
+          data: "some error",
+          status: "invalid input",
+        },
+      });
+
+      const prompt = "Test prompt";
+      await openaiService.generateChatCompletion(prompt);
+
+      expect(logger).toHaveBeenCalledWith("invalid input");
     });
   });
 });

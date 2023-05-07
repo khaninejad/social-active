@@ -37,6 +37,7 @@ export class OpenAIService {
       this.logger.error(`generateText error: ${JSON.stringify(error)}`);
     }
   }
+
   async generateTextCompletion(prompt: string) {
     this.logger.log(`generateTextCompletion`);
     try {
@@ -56,10 +57,10 @@ export class OpenAIService {
       return completions.data.choices[0].text.trim();
     } catch (error) {
       if (error.response) {
-        this.logger.log(error.response.status);
-        this.logger.log(error.response.data);
+        this.logger.error(error.response.status);
+        this.logger.error(error.response.data);
       } else {
-        this.logger.log(error.message);
+        this.logger.error(error.message);
       }
     }
   }
@@ -83,10 +84,10 @@ export class OpenAIService {
       return completions.data.choices[0].message.content;
     } catch (error) {
       if (error.response) {
-        this.logger.log(error.response.status);
-        this.logger.log(error.response.data);
+        this.logger.error(error.response.status);
+        this.logger.error(error.response.data);
       } else {
-        this.logger.log(error.message);
+        this.logger.error(error.message);
       }
     }
   }
@@ -112,6 +113,7 @@ export class OpenAIService {
     const tokens = str.trim().split(/\s+/);
     return tokens.length;
   }
+
   calculateMaxToken(str): number {
     const currentTokenCount = this.countTokens(str);
     this.logger.log(`currentTokenCount ${currentTokenCount}`);
