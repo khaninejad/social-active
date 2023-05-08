@@ -23,13 +23,13 @@ export class TwitterService {
     try {
       const currentAccount = await this.accountService.getAccount(account);
       const authClient = new auth.OAuth2User({
-        client_id: currentAccount.credentials.TWITTER_CLIENT_ID,
-        client_secret: currentAccount.credentials.TWITTER_CLIENT_SECRET,
+        client_id: currentAccount.credentials.client_id,
+        client_secret: currentAccount.credentials.client_secret,
         callback: currentAccount.credentials.callback,
         scopes: ["tweet.read", "tweet.write", "users.read", "offline.access"],
         token: {
-          access_token: currentAccount.access_token,
-          refresh_token: currentAccount.refresh_token,
+          access_token: currentAccount.token.access_token,
+          refresh_token: currentAccount.token.refresh_token,
         },
       });
       if (!authClient.isAccessTokenExpired()) {
@@ -37,7 +37,7 @@ export class TwitterService {
       } else {
         this.logger.error("access token is expired");
         const token = await authClient.refreshAccessToken();
-        const updateAccount = { account, ...token.token };
+        const updateAccount = { account, token: { ...token.token } };
         this.accountService.updateToken(updateAccount as UpdateAccountTokenDto);
         return authClient;
       }

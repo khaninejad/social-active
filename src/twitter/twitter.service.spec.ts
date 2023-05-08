@@ -8,12 +8,14 @@ jest.mock("twitter-api-sdk");
 
 const mockAccount = {
   credentials: {
-    TWITTER_CLIENT_ID: "TWITTER_CLIENT_ID",
-    TWITTER_CLIENT_SECRET: "TWITTER_CLIENT_SECRET",
+    client_id: "TWITTER_CLIENT_ID",
+    client_secret: "TWITTER_CLIENT_SECRET",
     callback: "callback",
   },
-  access_token: "access_token",
-  refresh_token: "refresh_token",
+  token: {
+    access_token: "access_token",
+    refresh_token: "refresh_token",
+  },
 } as Account;
 
 describe("TwitterService", () => {
@@ -61,8 +63,8 @@ describe("TwitterService", () => {
       });
 
       (auth.OAuth2User as jest.Mock).mockReturnValue({
-        access_token: mockAccount.access_token,
-        refresh_token: mockAccount.refresh_token,
+        access_token: mockAccount.token.access_token,
+        refresh_token: mockAccount.token.refresh_token,
         isAccessTokenExpired: jest.fn().mockReturnValue(false),
       });
 
@@ -109,8 +111,8 @@ describe("TwitterService", () => {
       jest.spyOn(accountService, "getAccount").mockResolvedValue(mockAccount);
 
       (auth.OAuth2User as jest.Mock).mockReturnValue({
-        access_token: mockAccount.access_token,
-        refresh_token: mockAccount.refresh_token,
+        access_token: mockAccount.token.access_token,
+        refresh_token: mockAccount.token.refresh_token,
         isAccessTokenExpired: jest.fn().mockReturnValue(true),
         refreshAccessToken: jest.fn().mockResolvedValue({ token: "token" }),
         token,
