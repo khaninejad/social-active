@@ -11,13 +11,13 @@ export class Prompt {
   getPrompt(content: any): string {
     const promptInstance = new Prompt();
 
-    promptInstance.addPrompt(`rephrase blog content using input and include source in body. Output as JSON with HTML tags in the body for SEO. External link to scientific sources required and a tags should be escaped for json string validation like
+    promptInstance.addPrompt(`rephrase blog content using input and include source in body. Output as JSON with HTML tags in the body for SEO. External link to sources is always required and a tags should be escaped for json string validation like
     JSON format:
     {
     "title": "new content title",
     "category": "new category",
     "tags": "new tags",
-    "body": "new content (min. 500 words, separate paragraphs with <p> tag, escape double quotes include <a> tags quotes like \") including content_source and content_source_url"
+    "body": "new content (min. 500 words, separate paragraphs with <p> tag, escape double quotes include <a> tags quotes like \") must including content_source and content_source_url"
     }
     JSON template:
     {
