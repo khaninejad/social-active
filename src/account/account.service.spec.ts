@@ -8,14 +8,10 @@ import { UpdateAccountFeedDto } from "./dto/update-account-feed.dto";
 import { UpdateAccountConfigDto } from "./dto/update-account-config.dto";
 import { UpdateAccountCredentialsDto } from "./dto/update-account-credentials.dto";
 import { UpdateAccountTokenDto } from "./dto/update-account-token.dto";
+import { UpdateAccountTwitterDto } from "./dto/update-account-twitter.dto";
 
 const mockAccount: CreateAccountDto = {
   account: "account1",
-  access_token: "random_token",
-  refresh_token: "random_refresh_account",
-  expires_at: 1681219898317,
-  scope: "write",
-  token_type: "bearer",
   config: {
     reminder: "2h",
   },
@@ -80,9 +76,6 @@ describe("AccountService", () => {
       .mockResolvedValueOnce(mockAccount as any);
     const newContent = await service.create({
       account: "account1",
-      access_token: "random_token",
-      refresh_token: "random_refresh_account",
-      expires_at: 1681219898317,
       feeds: "http://example.com\nhttp://example2.com",
     } as CreateAccountDto);
     expect(newContent).toEqual(mockAccount);
@@ -162,6 +155,27 @@ describe("AccountService", () => {
         token_type: "bearer",
       },
     } as UpdateAccountTokenDto);
+    expect(updated).toEqual(mockAccount);
+  });
+
+  it("should update twitter config of account", async () => {
+    jest
+      .spyOn(model, "findOneAndUpdate")
+      .mockResolvedValueOnce(mockAccount as any);
+    const updated = await service.updateTwitterConfig({
+      account: "account1",
+      twitter: {
+        id: "1",
+        name: "name",
+        url: "http://url.com",
+        description: "description",
+        profile_image_url: "http://image.com",
+        username: "username",
+        created_at: "2020-10-10",
+        location: "Berlin, Germany",
+        verified: "true",
+      },
+    } as UpdateAccountTwitterDto);
     expect(updated).toEqual(mockAccount);
   });
 });

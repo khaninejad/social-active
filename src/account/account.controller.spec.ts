@@ -2,11 +2,42 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { AccountController } from "./account.controller";
 import { AccountService } from "./account.service";
 import { Account } from "./interfaces/account.interface";
+import { CreateAccountDto } from "./dto/create-account.dto";
+import {
+  HttpException,
+  HttpStatus,
+  UnauthorizedException,
+} from "@nestjs/common";
 jest.mock("../app.const");
+
+const account: CreateAccountDto = {
+  account: "test",
+  config: {
+    reminder: "",
+  },
+  credentials: {
+    client_id: "",
+    client_secret: "",
+    callback: "",
+  },
+  twitter: {
+    id: "",
+    username: "",
+    name: "",
+    url: "",
+    description: "",
+    profile_image_url: "",
+    location: "",
+    verified: "",
+    created_at: "",
+  },
+  feeds: "",
+};
 
 describe("AccountController", () => {
   let controller: AccountController;
   let service: AccountService;
+  let errorLogger: jest.SpyInstance;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -20,7 +51,10 @@ describe("AccountController", () => {
             updateFeeds: jest.fn(),
             updateConfig: jest.fn(),
             updateCredentials: jest.fn(),
+            updateTwitterConfig: jest.fn(),
+            updateToken: jest.fn(),
             getAccount: jest.fn(),
+            getAll: jest.fn(),
           },
         },
       ],
@@ -28,6 +62,7 @@ describe("AccountController", () => {
 
     controller = module.get<AccountController>(AccountController);
     service = module.get<AccountService>(AccountService);
+    errorLogger = jest.spyOn(controller["logger"], "error");
   });
 
   it("should be defined", () => {
@@ -72,7 +107,7 @@ describe("AccountController", () => {
       },
     };
 
-    it("should create an account with the user data and token", async () => {
+    it("should update the account token with the user data and twitter info", async () => {
       jest
         .spyOn(controller["authClient"], "requestAccessToken")
         .mockResolvedValue({ token: token });
@@ -88,9 +123,9 @@ describe("AccountController", () => {
         code
       );
       expect(controller["client"].users.findMyUser).toHaveBeenCalled();
-      expect(service.create).toHaveBeenCalledWith({
+      expect(service.updateToken).toHaveBeenCalledWith({
         account: my_user.data.username,
-        ...token,
+        token: { ...token },
       });
     });
 
@@ -107,9 +142,6 @@ describe("AccountController", () => {
     it("should update feed", async () => {
       const account = {
         account: "account1",
-        access_token: "random_token",
-        refresh_token: "random_refresh_account",
-        expires_at: "1681219898317",
         feeds: ["http://google.com"],
       };
       jest.spyOn(service, "updateFeeds").mockResolvedValue(account as Account);
@@ -128,9 +160,6 @@ describe("AccountController", () => {
     it("should update feed", async () => {
       const account = {
         account: "account1",
-        access_token: "random_token",
-        refresh_token: "random_refresh_account",
-        expires_at: "1681219898317",
         feeds: [],
         config: { reminder: "2h" },
       };
@@ -150,14 +179,12 @@ describe("AccountController", () => {
     it("should update credentials", async () => {
       const account = {
         account: "account1",
-        access_token: "random_token",
-        refresh_token: "random_refresh_account",
-        expires_at: "1681219898317",
+        token: {},
         feeds: [],
         config: {},
         credentials: {
-          TWITTER_CLIENT_ID: "client-id",
-          TWITTER_CLIENT_SECRET: "client-secret",
+          client_id: "client-id",
+          client_secret: "client-secret",
           callback: "http://example.com/callnback",
         },
       };
@@ -183,14 +210,16 @@ describe("AccountController", () => {
     it("get twitter account", async () => {
       const account = {
         account: "account1",
-        access_token: "random_token",
-        refresh_token: "random_refresh_account",
-        expires_at: "1681219898317",
+        token: {
+          access_token: "random_token",
+          refresh_token: "random_refresh_account",
+          expires_at: "1681219898317",
+        },
         feeds: [],
         config: {},
         credentials: {
-          TWITTER_CLIENT_ID: "client-id",
-          TWITTER_CLIENT_SECRET: "client-secret",
+          client_id: "client-id",
+          client_secret: "client-secret",
           callback: "http://example.com/callnback",
         },
       };
@@ -198,10 +227,125 @@ describe("AccountController", () => {
       const url = "http://example.com/callback";
       jest.spyOn(service, "getAccount").mockResolvedValue(account as Account);
 
+      const responseMock = {
+        send: jest.fn((x) => x),
+        redirect: jest.fn().mockReturnValue(url),
+      } as unknown as Response;
+
       jest.spyOn(service, "getLoginUrl").mockReturnValue(url);
-      const res = await controller.account("account");
+      const res = await controller.account("account", responseMock);
 
       expect(res).toBe(url);
+    });
+
+    it("should throw an HttpException with an error message when an error occurs", async () => {
+      const mockError = new Error("Mock error message");
+      jest.spyOn(service, "getAccount").mockRejectedValue(mockError);
+
+      const account = "mockAccount";
+      const res = {
+        redirect: jest.fn(),
+      };
+
+      await expect(controller.account(account, res)).rejects.toThrow(
+        new HttpException(
+          `Internal Server error ${mockError}`,
+          HttpStatus.INTERNAL_SERVER_ERROR
+        )
+      );
+    });
+  });
+
+  describe("createAccount", () => {
+    it("should create an account", async () => {
+      jest
+        .spyOn(service, "create")
+        .mockResolvedValue({ ...account, _id: "id" } as unknown as Account);
+
+      const res = await controller.createAccount(account);
+
+      expect(res._id).toBe("id");
+    });
+
+    it("should create an account", async () => {
+      jest
+        .spyOn(service, "create")
+        .mockRejectedValue(new Error("create failed"));
+
+      await controller.createAccount(account);
+
+      expect(errorLogger).toHaveBeenCalledWith(new Error("create failed"));
+    });
+  });
+
+  describe("verifyToken method", () => {
+    it("should return a user object with valid token", async () => {
+      const verifyTokenDto = { token: "valid_token" };
+      const result = await controller.verifyToken(verifyTokenDto);
+      expect(result).toEqual({
+        id: 1,
+        username: "username",
+        email: "email@email.com",
+        firstname: "system",
+      });
+    });
+  });
+
+  describe("all method", () => {
+    it("should return an array of accounts", async () => {
+      const allAccounts: Account[] = [
+        {
+          ...account,
+          id: 1,
+          account: "account1",
+        } as unknown as Account,
+        {
+          ...account,
+          id: 2,
+          account: "account2",
+        } as unknown as Account,
+      ];
+      jest.spyOn(service, "getAll").mockResolvedValue(allAccounts);
+      const result = await controller.all("1", "10");
+      expect(service.getAll).toHaveBeenCalledWith();
+      expect(result).toEqual(allAccounts);
+    });
+
+    it("should throw an error if accountService.getAll() throws an error", async () => {
+      jest
+        .spyOn(service, "getAll")
+        .mockRejectedValue(new Error("getAll failed"));
+      await expect(controller.all("1", "10")).rejects.toThrow(
+        new HttpException(
+          "Internal Server error",
+          HttpStatus.INTERNAL_SERVER_ERROR
+        )
+      );
+    });
+  });
+
+  describe("login method", () => {
+    it("should return an access token and refresh token when given valid email and password", async () => {
+      const loginDto = {
+        email: process.env.EMAIL,
+        password: process.env.PASSWORD,
+      };
+      const expectedResult = {
+        api_token: `token ${loginDto.email} ${loginDto.password}`,
+        refreshToken: "refresh_token",
+      };
+
+      const result = await controller.login(loginDto);
+
+      expect(result).toEqual(expectedResult);
+    });
+
+    it("should throw an UnauthorizedException when given invalid email and password", async () => {
+      const loginDto = { email: "invalid_email", password: "invalid_password" };
+
+      await expect(controller.login(loginDto)).rejects.toThrow(
+        new UnauthorizedException("email or password is not valid")
+      );
     });
   });
 });

@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   HttpException,
   HttpStatus,
   Logger,
@@ -18,15 +19,22 @@ import { CreateAccountDto } from "./dto/create-account.dto";
 import { UpdateAccountCredentialsDto } from "./dto/update-account-credentials.dto";
 import configuration from "../app.const";
 import { Account } from "./interfaces/account.interface";
-import { ApiOperation } from "@nestjs/swagger";
+import {
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiOperation,
+  ApiResponse,
+} from "@nestjs/swagger";
 import { LoginRequestDto } from "./dto/login-request.dto";
 import { LoginVerifyTokenDto } from "./dto/login-verify-token.dto";
+import { UpdateAccountTokenDto } from "./dto/update-account-token.dto";
 
 @Controller("account")
 export class AccountController {
   private client: Client;
   private authClient: auth.OAuth2User;
   STATE = "my-state";
+  private readonly logger: Logger = new Logger(AccountController.name);
   constructor(private readonly accountService: AccountService) {
     this.authClient = new auth.OAuth2User({
       ...configuration.getTwitterEnv(),
@@ -53,22 +61,30 @@ export class AccountController {
   }
 
   @Get("/account")
-  async account(@Query("account") account: string): Promise<string> {
+  async account(
+    @Query("account") account: string,
+    @Res() res?
+  ): Promise<string> {
     try {
       if (account) {
         const currentAccount = await this.accountService.getAccount(account);
+        this.logger.debug(currentAccount);
         this.authClient = new auth.OAuth2User({
-          client_id: currentAccount.credentials.TWITTER_CLIENT_ID,
-          client_secret: currentAccount.credentials.TWITTER_CLIENT_SECRET,
+          client_id: currentAccount.credentials.client_id,
+          client_secret: currentAccount.credentials.client_secret,
           callback: currentAccount.credentials.callback,
           scopes: ["tweet.read", "tweet.write", "users.read", "offline.access"],
         });
         this.client = new Client(this.authClient);
       }
-      return this.accountService.getLoginUrl();
+      const authUrl = this.authClient.generateAuthURL({
+        code_challenge_method: "s256",
+        state: this.STATE,
+      });
+      return res.redirect(authUrl);
     } catch (error) {
       throw new HttpException(
-        "Internal Server error",
+        `Internal Server error ${error}`,
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
@@ -104,15 +120,22 @@ export class AccountController {
           "verified",
         ],
       });
-      Logger.log(my_user.data);
-      this.accountService.create({
+      this.logger.log(my_user.data);
+      await this.accountService.updateTwitterConfig({
         account: my_user.data.username,
         twitter: { ...my_user.data },
         ...(token.token as CreateAccountDto),
       });
+      const updateAccount = {
+        account: my_user.data.username,
+        token: { ...token.token },
+      };
+      await this.accountService.updateToken(
+        updateAccount as UpdateAccountTokenDto
+      );
       return JSON.stringify(my_user);
     } catch (error) {
-      Logger.debug(error);
+      this.logger.error(error);
       throw error;
     }
   }
@@ -161,8 +184,10 @@ export class AccountController {
   }
 
   @Post("/verify_token")
+  @ApiResponse({ status: HttpStatus.FORBIDDEN, description: "Forbidden." })
+  @ApiBadRequestResponse({ description: "Invalid query." })
+  @HttpCode(HttpStatus.CREATED)
   async verifyToken(@Body() verifyTokenDto: LoginVerifyTokenDto): Promise<any> {
-    Logger.log(verifyTokenDto);
     return {
       id: 1,
       username: "username",
@@ -172,12 +197,19 @@ export class AccountController {
   }
 
   @Put("/")
+  @ApiCreatedResponse({
+    description: "Successfully created query and count values.",
+    type: Number,
+  })
+  @ApiResponse({ status: HttpStatus.FORBIDDEN, description: "Forbidden." })
+  @ApiBadRequestResponse({ description: "Invalid query." })
+  @HttpCode(HttpStatus.CREATED)
   async createAccount(
     @Body() createAccountDto: CreateAccountDto
   ): Promise<any> {
-    Logger.log(createAccountDto);
+    this.logger.log(createAccountDto);
     try {
-      await this.accountService.create({
+      return await this.accountService.create({
         ...createAccountDto,
         credentials: {
           client_id: createAccountDto.credentials.client_id,
@@ -186,7 +218,7 @@ export class AccountController {
         },
       });
     } catch (error) {
-      Logger.error(error);
+      this.logger.error(error);
     }
   }
 }

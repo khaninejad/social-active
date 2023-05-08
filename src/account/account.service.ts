@@ -7,6 +7,7 @@ import { UpdateAccountFeedDto } from "./dto/update-account-feed.dto";
 import { UpdateAccountConfigDto } from "./dto/update-account-config.dto";
 import { UpdateAccountCredentialsDto } from "./dto/update-account-credentials.dto";
 import { UpdateAccountTokenDto } from "./dto/update-account-token.dto";
+import { UpdateAccountTwitterDto } from "./dto/update-account-twitter.dto";
 
 @Injectable()
 export class AccountService {
@@ -69,13 +70,24 @@ export class AccountService {
   }
 
   async getAccount(account: string): Promise<Account> {
-    return this.accountModel.findOne({ account: account }).exec();
+    return this.accountModel.findOne({ _id: account }).exec();
   }
 
   async updateToken(token: UpdateAccountTokenDto) {
     const updated = this.accountModel.findOneAndUpdate(
       { account: token.account },
       token,
+      { upsert: true }
+    );
+    return updated;
+  }
+
+  async updateTwitterConfig(
+    updateAccountTwitterDto: UpdateAccountTwitterDto
+  ): Promise<Account> {
+    const updated = this.accountModel.findOneAndUpdate(
+      { account: updateAccountTwitterDto.account },
+      updateAccountTwitterDto,
       { upsert: true }
     );
     return updated;
