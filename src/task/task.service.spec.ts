@@ -4,6 +4,7 @@ import { RssService } from "../rss/rss.service";
 import { ContentService } from "../content/content.service";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import { TaskService } from "./task.service";
+import { Account } from "src/account/interfaces/account.interface";
 
 describe("TaskService", () => {
   let taskService: TaskService;
@@ -90,6 +91,39 @@ describe("TaskService", () => {
 
       job.stop();
       taskService.deleteCron(name);
+    });
+
+    it("should not call disabled jobs", async () => {
+      jest.spyOn(accountService, "getAll").mockResolvedValue([
+        {
+          account: "test-account",
+          config: {
+            reminder: "1m",
+          },
+          feeds: ["http://test-feed.com/rss"],
+          credentials: {},
+        },
+        {
+          account: "test2-account",
+          config: {
+            reminder: "10m",
+          },
+          feeds: ["http://test-feed2.com/rss"],
+          credentials: {},
+        },
+        {
+          account: "test2-account",
+          config: {
+            reminder: "disabled",
+          },
+          feeds: ["http://test-feed2.com/rss"],
+          credentials: {},
+        },
+      ] as unknown as Account[]);
+      jest.spyOn(taskService, "addCronJob").mockImplementation();
+      await taskService.fetchFeeds();
+
+      expect(taskService.addCronJob).toHaveBeenCalledTimes(2);
     });
   });
 
