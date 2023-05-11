@@ -8,3 +8,14 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: secret
     ports:
       - '27017:27017'
+
+  social-active:
+    build: .
+    command: npm run start:prod
+    restart: always
+    ports:
+      - '3000:3000'
+    env_file:
+      - .env
+    depends_on:
+      - mongo
