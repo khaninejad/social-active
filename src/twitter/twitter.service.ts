@@ -21,7 +21,9 @@ export class TwitterService {
 
   private async getAuthClient(account: string) {
     try {
-      const currentAccount = await this.accountService.getAccount(account);
+      const currentAccount = await this.accountService.getAccountByName(
+        account
+      );
       const authClient = new auth.OAuth2User({
         client_id: currentAccount.credentials.client_id,
         client_secret: currentAccount.credentials.client_secret,
@@ -30,6 +32,9 @@ export class TwitterService {
         token: {
           access_token: currentAccount.token.access_token,
           refresh_token: currentAccount.token.refresh_token,
+          expires_at: +currentAccount.token.expires_at,
+          scope: currentAccount.token.scope,
+          token_type: currentAccount.token.token_type,
         },
       });
       if (!authClient.isAccessTokenExpired()) {
@@ -47,12 +52,23 @@ export class TwitterService {
   }
 
   private async sendTweet(authClient: auth.OAuth2User, text: string) {
-    this.client = new Client(authClient);
-    this.logger.log(`tweet: ${text}`);
+    try {
+      this.client = await this.getClientInstance(authClient);
+      this.logger.log(`tweet: ${text}`);
 
-    const tweet = await this.client.tweets.createTweet({
-      text: text,
+      const tweet = await this.client.tweets.createTweet({
+        text: text,
+      });
+      return tweet;
+    } catch (error) {
+      this.logger.error(`sendTweet sendTweet ${JSON.stringify(error)}`);
+    }
+  }
+
+  async getClientInstance(authClient: auth.OAuth2User): Promise<Client> {
+    return new Promise((resolve) => {
+      const client = new Client(authClient);
+      resolve(client);
     });
-    return tweet;
   }
 }
