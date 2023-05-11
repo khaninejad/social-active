@@ -106,7 +106,7 @@ export class AccountController {
   ): Promise<string> {
     try {
       if (state !== this.STATE) throw new Error("State is not valid");
-      const token = await this.authClient.requestAccessToken(code as string);
+      const token = await this.authClient.requestAccessToken(code);
       const my_user = await this.client.users.findMyUser({
         "user.fields": [
           "description",
