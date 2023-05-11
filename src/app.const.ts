@@ -3,8 +3,7 @@ export const CONTENT_MODEL_NAME = "content";
 export const DATABASE_CONNECTION = "DATABASE_CONNECTION";
 export const ACCOUNT_MODEL = "ACCOUNT_MODEL";
 export const ACCOUNT_MODEL_NAME = "account";
-//TODO: rename class name and make it uppercase
-class configuration {
+class Configuration {
   //TODO: remove twitter env and read it from db
   getTwitterEnv() {
     if (
@@ -50,4 +49,4 @@ class configuration {
     }
   }
 }
-export default new configuration();
+export default new Configuration();
