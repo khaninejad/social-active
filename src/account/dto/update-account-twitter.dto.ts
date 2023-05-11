@@ -9,6 +9,6 @@ export interface UpdateAccountTwitterDto {
     username: string;
     created_at: string;
     location: string;
-    verified: string;
+    verified: boolean;
   };
 }

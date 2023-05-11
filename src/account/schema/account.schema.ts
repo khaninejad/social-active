@@ -16,7 +16,7 @@ export const AccountSchema = new mongoose.Schema({
     description: String,
     profile_image_url: String,
     location: String,
-    verified: String,
+    verified: Boolean,
     created_at: String,
   },
   token: {

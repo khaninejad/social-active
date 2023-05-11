@@ -173,7 +173,7 @@ describe("AccountService", () => {
         username: "username",
         created_at: "2020-10-10",
         location: "Berlin, Germany",
-        verified: "true",
+        verified: true,
       },
     } as UpdateAccountTwitterDto);
     expect(updated).toEqual(mockAccount);
