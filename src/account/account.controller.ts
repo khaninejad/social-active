@@ -17,7 +17,6 @@ import Client, { auth } from "twitter-api-sdk";
 import { AccountService } from "./account.service";
 import { CreateAccountDto } from "./dto/create-account.dto";
 import { UpdateAccountCredentialsDto } from "./dto/update-account-credentials.dto";
-import configuration from "../app.const";
 import { Account } from "./interfaces/account.interface";
 import {
   ApiBadRequestResponse,
@@ -28,20 +27,13 @@ import {
 import { LoginRequestDto } from "./dto/login-request.dto";
 import { LoginVerifyTokenDto } from "./dto/login-verify-token.dto";
 import { UpdateAccountTokenDto } from "./dto/update-account-token.dto";
+import { UpdateAccountTwitterDto } from "./dto/update-account-twitter.dto";
 
 @Controller("account")
 export class AccountController {
-  private client: Client;
-  private authClient: auth.OAuth2User;
   STATE = "my-state";
   private readonly logger: Logger = new Logger(AccountController.name);
-  constructor(private readonly accountService: AccountService) {
-    this.authClient = new auth.OAuth2User({
-      ...configuration.getTwitterEnv(),
-      scopes: ["tweet.read", "tweet.write", "users.read", "offline.access"],
-    });
-    this.client = new Client(this.authClient);
-  }
+  constructor(private readonly accountService: AccountService) {}
 
   @Get("/")
   @ApiOperation({ summary: "Get list of the accounts" })
@@ -67,21 +59,16 @@ export class AccountController {
   ): Promise<string> {
     try {
       if (account) {
-        const currentAccount = await this.accountService.getAccount(account);
-        this.logger.debug(currentAccount);
-        this.authClient = new auth.OAuth2User({
-          client_id: currentAccount.credentials.client_id,
-          client_secret: currentAccount.credentials.client_secret,
-          callback: currentAccount.credentials.callback,
-          scopes: ["tweet.read", "tweet.write", "users.read", "offline.access"],
+        const authClient = await this.getAuthClientInstance(account);
+
+        const authUrl = authClient.generateAuthURL({
+          code_challenge_method: "s256",
+          state: this.STATE,
         });
-        this.client = new Client(this.authClient);
+        return res.redirect(authUrl);
       }
-      const authUrl = this.authClient.generateAuthURL({
-        code_challenge_method: "s256",
-        state: this.STATE,
-      });
-      return res.redirect(authUrl);
+
+      throw new Error("No account has been specified ");
     } catch (error) {
       throw new HttpException(
         `Internal Server error ${error}`,
@@ -90,24 +77,35 @@ export class AccountController {
     }
   }
 
-  @Get("/twitter_login")
-  async twitter_login(@Res() res): Promise<any> {
-    const authUrl = this.authClient.generateAuthURL({
-      code_challenge_method: "s256",
-      state: this.STATE,
-    });
-    return res.redirect(authUrl);
+  async getAuthClientInstance(account: string): Promise<auth.OAuth2User> {
+    try {
+      const currentAccount = await this.accountService.getAccount(account);
+      this.logger.debug(currentAccount);
+      const authClient = new auth.OAuth2User({
+        client_id: currentAccount.credentials.client_id,
+        client_secret: currentAccount.credentials.client_secret,
+        callback:
+          currentAccount.credentials.callback +
+          `?account=${currentAccount.account}`,
+        scopes: ["tweet.read", "tweet.write", "users.read", "offline.access"],
+      });
+      return authClient;
+    } catch (error) {
+      this.logger.error(error);
+    }
   }
 
   @Get("/callback")
   async twitterCallback(
     @Query("code") code: string,
-    @Query("state") state: string
+    @Query("state") state: string,
+    @Query("account") account: string
   ): Promise<string> {
     try {
       if (state !== this.STATE) throw new Error("State is not valid");
-      const token = await this.authClient.requestAccessToken(code);
-      const my_user = await this.client.users.findMyUser({
+      const authClient = await this.getAuthClientInstance(account);
+      const client = await this.getClientInstance(account, code, authClient);
+      const my_user = await client.users.findMyUser({
         "user.fields": [
           "description",
           "profile_image_url",
@@ -121,11 +119,12 @@ export class AccountController {
         ],
       });
       this.logger.log(my_user.data);
+      const token = await authClient.requestAccessToken();
+
       await this.accountService.updateTwitterConfig({
         account: my_user.data.username,
         twitter: { ...my_user.data },
-        ...(token.token as CreateAccountDto),
-      });
+      } as UpdateAccountTwitterDto);
       const updateAccount = {
         account: my_user.data.username,
         token: { ...token.token },
@@ -138,6 +137,17 @@ export class AccountController {
       this.logger.error(error);
       throw error;
     }
+  }
+
+  async getClientInstance(
+    account: string,
+    code: string,
+    authClient: auth.OAuth2User
+  ): Promise<Client> {
+    return new Promise((resolve) => {
+      const client = new Client(authClient);
+      resolve(client);
+    });
   }
 
   @Post("/feeds")

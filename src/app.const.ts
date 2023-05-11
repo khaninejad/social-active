@@ -4,23 +4,6 @@ export const DATABASE_CONNECTION = "DATABASE_CONNECTION";
 export const ACCOUNT_MODEL = "ACCOUNT_MODEL";
 export const ACCOUNT_MODEL_NAME = "account";
 class Configuration {
-  //TODO: remove twitter env and read it from db
-  getTwitterEnv() {
-    if (
-      process.env.TWITTER_CLIENT_ID &&
-      process.env.TWITTER_CLIENT_SECRET &&
-      process.env.TWITTER_CLIENT_CALLBACK
-    ) {
-      return {
-        client_id: process.env.TWITTER_CLIENT_ID,
-        client_secret: process.env.TWITTER_CLIENT_SECRET,
-        callback: process.env.TWITTER_CLIENT_CALLBACK,
-      };
-    } else {
-      throw new Error("twitter envs is not set");
-    }
-  }
-
   getWordpressEnv() {
     if (
       process.env.WORDPRESS_ENDPOINT &&
