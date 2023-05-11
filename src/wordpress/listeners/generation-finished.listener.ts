@@ -20,6 +20,7 @@ export class CrawlFinishedListener {
     try {
       const content = await this.contentService.getContentById(event.id);
       if (content) {
+        // TODO: if source not exists in the content then source will be added
         const res = await this.wordpressService.createPost(
           content.generated.title,
           content.generated.body,

@@ -23,6 +23,7 @@ export class TaskService {
   async fetchFeeds() {
     const accounts = await this.accountService.getAll();
     accounts.forEach((item) => {
+      // TODO: check if job disabled
       this.addCronJob(item.account, item.config.reminder, item.feeds);
     });
   }
