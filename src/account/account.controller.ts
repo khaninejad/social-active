@@ -28,10 +28,12 @@ import { LoginRequestDto } from "./dto/login-request.dto";
 import { LoginVerifyTokenDto } from "./dto/login-verify-token.dto";
 import { UpdateAccountTokenDto } from "./dto/update-account-token.dto";
 import { UpdateAccountTwitterDto } from "./dto/update-account-twitter.dto";
+import { randomBytes } from "crypto";
 
 @Controller("account")
 export class AccountController {
-  STATE = "my-state";
+  STATE = randomBytes(12).toString("hex");
+  challenge = randomBytes(12).toString("hex");
   private readonly logger: Logger = new Logger(AccountController.name);
   constructor(private readonly accountService: AccountService) {}
 
@@ -62,8 +64,9 @@ export class AccountController {
         const authClient = await this.getAuthClientInstance(account);
 
         const authUrl = authClient.generateAuthURL({
-          code_challenge_method: "s256",
           state: this.STATE,
+          code_challenge_method: "plain",
+          code_challenge: this.challenge,
         });
         return res.redirect(authUrl);
       }
@@ -77,24 +80,6 @@ export class AccountController {
     }
   }
 
-  async getAuthClientInstance(account: string): Promise<auth.OAuth2User> {
-    try {
-      const currentAccount = await this.accountService.getAccount(account);
-      this.logger.debug(currentAccount);
-      const authClient = new auth.OAuth2User({
-        client_id: currentAccount.credentials.client_id,
-        client_secret: currentAccount.credentials.client_secret,
-        callback:
-          currentAccount.credentials.callback +
-          `?account=${currentAccount.account}`,
-        scopes: ["tweet.read", "tweet.write", "users.read", "offline.access"],
-      });
-      return authClient;
-    } catch (error) {
-      this.logger.error(error);
-    }
-  }
-
   @Get("/callback")
   async twitterCallback(
     @Query("code") code: string,
@@ -104,7 +89,13 @@ export class AccountController {
     try {
       if (state !== this.STATE) throw new Error("State is not valid");
       const authClient = await this.getAuthClientInstance(account);
-      const client = await this.getClientInstance(account, code, authClient);
+      authClient.generateAuthURL({
+        state,
+        code_challenge_method: "plain",
+        code_challenge: this.challenge,
+      });
+      const { token } = await authClient.requestAccessToken(code);
+      const client = await this.getClientInstance(authClient);
       const my_user = await client.users.findMyUser({
         "user.fields": [
           "description",
@@ -119,7 +110,6 @@ export class AccountController {
         ],
       });
       this.logger.log(my_user.data);
-      const token = await authClient.requestAccessToken();
 
       await this.accountService.updateTwitterConfig({
         account: my_user.data.username,
@@ -127,23 +117,35 @@ export class AccountController {
       } as UpdateAccountTwitterDto);
       const updateAccount = {
         account: my_user.data.username,
-        token: { ...token.token },
+        token: { ...token },
       };
       await this.accountService.updateToken(
         updateAccount as UpdateAccountTokenDto
       );
       return JSON.stringify(my_user);
     } catch (error) {
-      this.logger.error(error);
-      throw error;
+      this.logger.error(`twitterCallback ${JSON.stringify(error.error)}`);
     }
   }
 
-  async getClientInstance(
-    account: string,
-    code: string,
-    authClient: auth.OAuth2User
-  ): Promise<Client> {
+  async getAuthClientInstance(account: string): Promise<auth.OAuth2User> {
+    try {
+      const currentAccount = await this.accountService.getAccountByName(
+        account
+      );
+      const authClient = new auth.OAuth2User({
+        client_id: currentAccount.credentials.client_id,
+        client_secret: currentAccount.credentials.client_secret,
+        callback: currentAccount.credentials.callback,
+        scopes: ["tweet.read", "tweet.write", "users.read", "offline.access"],
+      });
+      return authClient;
+    } catch (error) {
+      this.logger.error(error);
+    }
+  }
+
+  async getClientInstance(authClient: auth.OAuth2User): Promise<Client> {
     return new Promise((resolve) => {
       const client = new Client(authClient);
       resolve(client);

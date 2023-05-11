@@ -73,6 +73,10 @@ export class AccountService {
     return this.accountModel.findOne({ _id: account }).exec();
   }
 
+  async getAccountByName(account: string): Promise<Account> {
+    return this.accountModel.findOne({ account }).exec();
+  }
+
   async updateToken(token: UpdateAccountTokenDto) {
     const updated = this.accountModel.findOneAndUpdate(
       { account: token.account },
