@@ -82,5 +82,76 @@ describe("GenerationFinishedListener", () => {
       expect(loggerWarnSpy).toHaveBeenCalledTimes(0);
       expect(eventEmitter.emit).toHaveBeenCalledTimes(1);
     });
+
+    it("check handleGenerationFinishedEvent contain source url", async () => {
+      jest.spyOn(contentService, "getContentById").mockResolvedValue({
+        id: "123456",
+        title: "title",
+        description: "description",
+        crawl: {
+          image: "http://google.com",
+          url: "http://test.ecom",
+        },
+        generated: {
+          title: "title",
+          body: "body",
+          tags: "tags",
+          category: "category",
+        },
+      } as Content);
+      jest.spyOn(wordpressService, "createPost").mockResolvedValue({
+        id: "123",
+        title: { raw: "title" },
+        link: "http://example.com",
+        slug: "test-slug",
+        date: new Date(),
+      } as unknown as WordpressResponse);
+
+      await listener.handleGenerationFinishedEvent(generationFinishedEventMock);
+      expect(wordpressService.createPost).toHaveBeenCalledWith(
+        "title",
+        `body\n<a href="http://test.ecom">Source</a>`,
+        "http://google.com",
+        ["category"],
+        ["tags"]
+      );
+    });
+
+    it("check handleGenerationFinishedEvent not contain source url", async () => {
+      const contentMock = {
+        id: "123456",
+        title: "title",
+        description: "description",
+        crawl: {
+          image: "http://google.com",
+          url: "http://test.ecom",
+        },
+        generated: {
+          title: "title",
+          body: `body\n<a href="http://test.ecom">visit this link</a>`,
+          tags: "tags",
+          category: "category",
+        },
+      } as Content;
+      jest
+        .spyOn(contentService, "getContentById")
+        .mockResolvedValue(contentMock);
+      jest.spyOn(wordpressService, "createPost").mockResolvedValue({
+        id: "123",
+        title: { raw: "title" },
+        link: "http://example.com",
+        slug: "test-slug",
+        date: new Date(),
+      } as unknown as WordpressResponse);
+
+      await listener.handleGenerationFinishedEvent(generationFinishedEventMock);
+      expect(wordpressService.createPost).toHaveBeenCalledWith(
+        "title",
+        contentMock.generated.body,
+        contentMock.crawl.image,
+        ["category"],
+        ["tags"]
+      );
+    });
   });
 });
