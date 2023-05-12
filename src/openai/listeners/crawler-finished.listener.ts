@@ -35,6 +35,7 @@ export class CrawlFinishedListener {
         }
 
         this.logger.warn(`token size of request instance: ${tokenSize}`);
+        // TODO: Check this generated content is related to the account
         const res = await this.openAIService.generateText(roleInstance);
         const generatedTokenSize = this.openAIService.countTokens(
           JSON.stringify(res)
