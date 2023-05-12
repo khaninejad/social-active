@@ -1,5 +1,5 @@
 import { FeedData, FeedEntry, extract } from "@extractus/feed-extractor";
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 
 @Injectable()
 export class RssService {
@@ -13,12 +13,28 @@ export class RssService {
     if (!this.url_list) {
       throw new Error("Please provide a URL");
     }
-    const task_list: Promise<FeedData>[] = [];
-    //todo: fix failed rss and mark them as disabled
-    this.url_list.forEach(async (url) => {
-      task_list.push(extract(url));
-    });
-    return await Promise.all(task_list);
+    try {
+      const task_list: Promise<FeedData>[] = [];
+      this.url_list.forEach(async (url) => {
+        task_list.push(extract(url));
+      });
+      const results = await Promise.allSettled(task_list);
+      const feedData: FeedData[] = [];
+
+      results.forEach((result, index) => {
+        if (result.status === "fulfilled") {
+          feedData.push(result.value);
+        } else {
+          Logger.error(
+            `Error extracting data from URL: ${this.url_list[index]}. ${result.reason}`
+          );
+        }
+      });
+
+      return feedData;
+    } catch (error) {
+      Logger.error(error + this.url_list);
+    }
   }
 
   async mergeEntities(feedData: FeedData[]): Promise<FeedEntry[]> {
