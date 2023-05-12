@@ -124,7 +124,7 @@ export class AccountController {
       );
       return JSON.stringify(my_user);
     } catch (error) {
-      this.logger.error(`twitterCallback ${JSON.stringify(error.error)}`);
+      this.logger.error(`twitterCallback ${JSON.stringify(error.message)}`);
     }
   }
 

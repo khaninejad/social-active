@@ -108,7 +108,9 @@ describe("TwitterService", () => {
       const accountName = "test-account";
       const token = "token";
 
-      jest.spyOn(accountService, "getAccount").mockResolvedValue(mockAccount);
+      jest
+        .spyOn(accountService, "getAccountByName")
+        .mockResolvedValue(mockAccount);
 
       (auth.OAuth2User as jest.Mock).mockReturnValue({
         access_token: mockAccount.token.access_token,

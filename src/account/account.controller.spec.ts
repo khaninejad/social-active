@@ -50,6 +50,23 @@ const getAccountMock = {
     callback: "http://example.com/callback",
   },
 };
+const token = {
+  token_type: "Bearer",
+  access_token: "access_token",
+  refresh_token: "refresh_token",
+  expires_in: 3600,
+  twitter: {
+    id: "123",
+    name: "John Doe",
+    username: "johndoe",
+  },
+};
+const authClient = {
+  requestAccessToken: jest.fn().mockReturnValue({ token: token }),
+  isAccessTokenExpired: false,
+  getAuthHeader: jest.fn(),
+  generateAuthURL: jest.fn().mockReturnValue("http://callback.com"),
+} as unknown as Promise<auth.OAuth2User>;
 
 describe("AccountController", () => {
   let controller: AccountController;
@@ -109,11 +126,6 @@ describe("AccountController", () => {
     };
 
     it("should update the account token with the user data and twitter info", async () => {
-      const authClient = {
-        requestAccessToken: jest.fn().mockReturnValue({ token: token }),
-        isAccessTokenExpired: false,
-        getAuthHeader: jest.fn(),
-      } as unknown as Promise<auth.OAuth2User>;
       jest
         .spyOn(controller, "getAuthClientInstance")
         .mockImplementation(() => authClient);
@@ -129,6 +141,7 @@ describe("AccountController", () => {
         .mockResolvedValue(mockClientInstance);
 
       jest.spyOn(service, "create").mockImplementation();
+      controller["STATE"] = state;
 
       const result = await controller.twitterCallback(
         code,
@@ -137,11 +150,7 @@ describe("AccountController", () => {
       );
 
       expect(result).toBe(JSON.stringify(my_user));
-      expect(getClientInstanceSpy).toHaveBeenCalledWith(
-        "valid-account",
-        code,
-        authClient
-      );
+      expect(getClientInstanceSpy).toHaveBeenCalledWith(authClient);
       expect(mockClientInstance.users.findMyUser).toHaveBeenCalled();
       expect(service.updateToken).toHaveBeenCalledWith({
         account: my_user.data.username,
@@ -155,10 +164,11 @@ describe("AccountController", () => {
 
     it("should throw an error if the state is not valid", async () => {
       const invalidState = "invalid-state";
-
-      await expect(
-        controller.twitterCallback(code, invalidState, "invalid-account")
-      ).rejects.toThrow("State is not valid");
+      controller["STATE"] = "other-state";
+      await controller.twitterCallback(code, invalidState, "invalid-account");
+      expect(errorLogger).toHaveBeenCalledWith(
+        'twitterCallback "State is not valid"'
+      );
     });
   });
 
@@ -236,6 +246,9 @@ describe("AccountController", () => {
       jest
         .spyOn(service, "getAccount")
         .mockResolvedValue(getAccountMock as Account);
+      jest
+        .spyOn(controller, "getAuthClientInstance")
+        .mockImplementation(() => authClient);
 
       const responseMock = {
         send: jest.fn((x) => x),
