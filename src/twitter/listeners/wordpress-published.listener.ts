@@ -23,7 +23,14 @@ export class WordpressPublishedListener {
           content.blog.title + " " + content.blog.link
         );
         if (tweet) {
-          this.logger.log(`tweet published ${tweet} post`);
+          await this.contentService.updateTweet({
+            id: content.id,
+            Tweet: {
+              id: tweet.data.id,
+              text: tweet.data.text,
+            },
+          });
+          this.logger.log(`tweet published ${JSON.stringify(tweet.data)} post`);
         }
       }
     } catch (error) {

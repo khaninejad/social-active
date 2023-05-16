@@ -28,4 +28,9 @@ export interface Content extends Document {
     category: string;
     tags: string;
   };
+
+  readonly tweet: {
+    id: string;
+    text: string;
+  };
 }

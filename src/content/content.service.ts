@@ -6,6 +6,7 @@ import { CreateContentDto } from "./dto/create-content.dto";
 import { UpdateCrawlDto } from "./dto/update-crawl.dto";
 import { UpdateBlogDto } from "./dto/update-blog.dto";
 import { UpdateGeneratedDto } from "./dto/update-generated.dto";
+import { UpdateTweetDto } from "./dto/update-tweet.dto";
 
 @Injectable()
 export class ContentService {
@@ -78,6 +79,15 @@ export class ContentService {
     const updated = this.contentModel.findByIdAndUpdate(
       updateGeneratedDto.id,
       { generated: updateGeneratedDto.generated },
+      { upsert: true }
+    );
+    return updated;
+  }
+
+  async updateTweet(updateTweetDto: UpdateTweetDto): Promise<Content> {
+    const updated = this.contentModel.findByIdAndUpdate(
+      updateTweetDto.id,
+      { tweet: updateTweetDto.Tweet },
       { upsert: true }
     );
     return updated;
