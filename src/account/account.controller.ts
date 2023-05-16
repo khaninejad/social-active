@@ -6,6 +6,7 @@ import {
   HttpException,
   HttpStatus,
   Logger,
+  Param,
   Post,
   Put,
   Query,
@@ -46,6 +47,38 @@ export class AccountController {
     try {
       const allAccounts = await this.accountService.getAll();
       return allAccounts;
+    } catch (error) {
+      throw new HttpException(
+        "Internal Server error",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  @Get("/getByName/:account")
+  @ApiOperation({ summary: "Get account by name" })
+  async getByName(@Param("account") account: string): Promise<Account> {
+    this.logger.debug(account);
+    try {
+      const accountDetails = await this.accountService.getAccountByName(
+        account
+      );
+      return accountDetails;
+    } catch (error) {
+      throw new HttpException(
+        "Internal Server error",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  @Get("/getById/:id")
+  @ApiOperation({ summary: "Get account by id" })
+  async getById(@Param("id") id: string): Promise<Account> {
+    this.logger.debug(id);
+    try {
+      const accountDetails = await this.accountService.getAccountById(id);
+      return accountDetails;
     } catch (error) {
       throw new HttpException(
         "Internal Server error",
