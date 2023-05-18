@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Logger,
   Param,
+  Patch,
   Post,
   Put,
   Query,
@@ -30,6 +31,7 @@ import { LoginVerifyTokenDto } from "./dto/login-verify-token.dto";
 import { UpdateAccountTokenDto } from "./dto/update-account-token.dto";
 import { UpdateAccountTwitterDto } from "./dto/update-account-twitter.dto";
 import { randomBytes } from "crypto";
+import { UpdateAccountDto } from "./dto/update-account.dto";
 
 @Controller("account")
 export class AccountController {
@@ -261,6 +263,37 @@ export class AccountController {
           client_secret: createAccountDto.credentials.client_secret,
           callback: process.env.TWITTER_CLIENT_CALLBACK,
         },
+      });
+    } catch (error) {
+      this.logger.error(error);
+    }
+  }
+
+  @Patch("/")
+  @ApiCreatedResponse({
+    description: "Successfully created query and count values.",
+    type: Number,
+  })
+  @ApiResponse({ status: HttpStatus.FORBIDDEN, description: "Forbidden." })
+  @ApiBadRequestResponse({ description: "Invalid query." })
+  @HttpCode(HttpStatus.CREATED)
+  async updateAccount(
+    @Body() updateAccountDto: UpdateAccountDto
+  ): Promise<any> {
+    this.logger.log(updateAccountDto);
+    try {
+      await this.accountService.updateFeeds({
+        account: updateAccountDto.account,
+        feeds: [updateAccountDto.feeds],
+      });
+      await this.accountService.updateConfig({
+        account: updateAccountDto.account,
+        config: { reminder: updateAccountDto.config.reminder },
+      });
+
+      await this.accountService.updateCredentials({
+        account: updateAccountDto.account,
+        credentials: updateAccountDto.credentials,
       });
     } catch (error) {
       this.logger.error(error);
