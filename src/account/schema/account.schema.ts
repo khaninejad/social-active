@@ -18,6 +18,12 @@ export const AccountSchema = new mongoose.Schema({
     location: String,
     verified: Boolean,
     created_at: String,
+    public_metrics: {
+      followers_count: Number,
+      following_count: Number,
+      tweet_count: Number,
+      listed_count: Number,
+    },
   },
   token: {
     access_token: String,

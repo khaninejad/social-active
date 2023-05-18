@@ -10,5 +10,11 @@ export interface UpdateAccountTwitterDto {
     created_at: string;
     location: string;
     verified: boolean;
+    public_metrics: {
+      followers_count: number;
+      following_count: number;
+      tweet_count: number;
+      listed_count: number;
+    };
   };
 }

@@ -142,6 +142,7 @@ export class AccountController {
           "created_at",
           "location",
           "verified",
+          "public_metrics",
         ],
       });
       this.logger.log(my_user.data);
@@ -282,9 +283,11 @@ export class AccountController {
   ): Promise<any> {
     this.logger.log(updateAccountDto);
     try {
+      const feeds = updateAccountDto.feeds.split("\n");
+      const feedsTuple: [string] = feeds as [string];
       await this.accountService.updateFeeds({
         account: updateAccountDto.account,
-        feeds: [updateAccountDto.feeds],
+        feeds: feedsTuple,
       });
       await this.accountService.updateConfig({
         account: updateAccountDto.account,
