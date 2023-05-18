@@ -110,8 +110,8 @@ describe("AccountService", () => {
     const updated = await service.updateCredentials({
       account: "account1",
       credentials: {
-        TWITTER_CLIENT_ID: "client-id",
-        TWITTER_CLIENT_SECRET: "client-secret",
+        client_id: "client-id",
+        client_secret: "client-secret",
         callback: "callback",
       },
     } as UpdateAccountCredentialsDto);
