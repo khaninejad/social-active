@@ -11,11 +11,11 @@ services:
 
   social-active:
     build: .
-    command: npm run start:dev
+    command: npm run start:prod
     restart: always
     ports:
       - '3000:3000'
     env_file:
-      - .env
+      - .env.prod
     depends_on:
       - mongo
