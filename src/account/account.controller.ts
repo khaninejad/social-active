@@ -262,7 +262,7 @@ export class AccountController {
         credentials: {
           client_id: createAccountDto.credentials.client_id,
           client_secret: createAccountDto.credentials.client_secret,
-          callback: process.env.TWITTER_CLIENT_CALLBACK,
+          callback: createAccountDto.credentials.callback,
         },
       });
     } catch (error) {
@@ -283,7 +283,10 @@ export class AccountController {
   ): Promise<any> {
     this.logger.log(updateAccountDto);
     try {
-      const feeds = updateAccountDto.feeds.split("\n");
+      const feeds =
+        updateAccountDto.feeds.length > 1
+          ? updateAccountDto.feeds.split("\n")
+          : updateAccountDto.feeds;
       const feedsTuple: [string] = feeds as [string];
       await this.accountService.updateFeeds({
         account: updateAccountDto.account,
