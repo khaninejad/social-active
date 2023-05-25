@@ -283,11 +283,13 @@ export class AccountController {
   ): Promise<any> {
     this.logger.log(updateAccountDto);
     try {
+      this.logger.debug(updateAccountDto.feeds);
       const feeds =
-        updateAccountDto.feeds.length > 1
+        updateAccountDto.feeds.length < 1
           ? updateAccountDto.feeds.split("\n")
           : updateAccountDto.feeds;
       const feedsTuple: [string] = feeds as [string];
+      this.logger.debug(feedsTuple);
       await this.accountService.updateFeeds({
         account: updateAccountDto.account,
         feeds: feedsTuple,
