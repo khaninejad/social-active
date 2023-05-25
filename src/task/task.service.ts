@@ -30,6 +30,7 @@ export class TaskService {
   }
 
   addCronJob(name: string, time: string, feeds: string[]): CronJob {
+    this.logger.warn(`starting ${name}`);
     const job = new CronJob(this.getCronString(time), async () => {
       await this.dispatchJob(time, name, feeds);
     });

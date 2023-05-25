@@ -174,7 +174,7 @@ describe("TaskService", () => {
       expect(rssService.fetch).toHaveBeenCalledTimes(1);
       expect(contentService.createMany).toHaveBeenCalledTimes(1);
       expect(eventEmitter.emit).toHaveBeenCalledTimes(1);
-      expect(loggerWarnSpy).toHaveBeenCalledTimes(2);
+      expect(loggerWarnSpy).toHaveBeenCalledTimes(3);
     });
   });
 });

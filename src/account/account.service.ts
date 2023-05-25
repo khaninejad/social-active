@@ -68,6 +68,59 @@ export class AccountService {
   async getAll(): Promise<Account[]> {
     return this.accountModel.find().exec();
   }
+  async getAllWithContents(): Promise<Account[]> {
+    return this.accountModel
+      .aggregate(
+        [
+          {
+            $project: { _id: 1, account: 2, config: 3, twitter: 4 },
+          },
+          {
+            $lookup: {
+              from: "contents",
+              localField: "account",
+              foreignField: "account",
+              as: "contents",
+            },
+          },
+          {
+            $unwind: {
+              path: "$contents",
+              preserveNullAndEmptyArrays: true,
+            },
+          },
+          // {
+          //   $match: {
+          //     "contents.blog": { $exists: true },
+          //     "contents.tweet": { $exists: true },
+          //   },
+          // },
+          { $sort: { "contents.created_at": 1 } },
+          {
+            $group: {
+              _id: "$_id",
+              account: { $first: "$account" },
+              config: { $first: "$config" },
+              twitter: { $first: "$twitter" },
+              contents: { $push: "$contents" },
+            },
+          },
+          {
+            $project: {
+              _id: 1,
+              account: 1,
+              config: 1,
+              twitter: 1,
+              latest_content: {
+                $arrayElemAt: ["$contents", -1],
+              },
+            },
+          },
+        ],
+        { maxTimeMS: 60000, allowDiskUse: true }
+      )
+      .exec();
+  }
 
   async getAccount(account: string): Promise<Account> {
     return this.accountModel.findOne({ _id: account }).exec();

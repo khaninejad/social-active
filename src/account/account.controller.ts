@@ -32,13 +32,17 @@ import { UpdateAccountTokenDto } from "./dto/update-account-token.dto";
 import { UpdateAccountTwitterDto } from "./dto/update-account-twitter.dto";
 import { randomBytes } from "crypto";
 import { UpdateAccountDto } from "./dto/update-account.dto";
+import { TwitterService } from "../twitter/twitter.service";
 
 @Controller("account")
 export class AccountController {
   STATE = randomBytes(12).toString("hex");
   challenge = randomBytes(12).toString("hex");
   private readonly logger: Logger = new Logger(AccountController.name);
-  constructor(private readonly accountService: AccountService) {}
+  constructor(
+    private readonly accountService: AccountService,
+    private readonly twitterService: TwitterService
+  ) {}
 
   @Get("/")
   @ApiOperation({ summary: "Get list of the accounts" })
@@ -47,7 +51,7 @@ export class AccountController {
     @Query("items_per_page") items_per_page: string
   ): Promise<Account[]> {
     try {
-      const allAccounts = await this.accountService.getAll();
+      const allAccounts = await this.accountService.getAllWithContents();
       return allAccounts;
     } catch (error) {
       throw new HttpException(
@@ -303,6 +307,31 @@ export class AccountController {
         account: updateAccountDto.account,
         credentials: updateAccountDto.credentials,
       });
+    } catch (error) {
+      this.logger.error(error);
+    }
+  }
+
+  @Get("/refresh_account")
+  @ApiCreatedResponse({
+    description: "Successfully refreshed the account.",
+    type: Number,
+  })
+  @ApiResponse({ status: HttpStatus.FORBIDDEN, description: "Forbidden." })
+  @ApiBadRequestResponse({ description: "Invalid query." })
+  @HttpCode(HttpStatus.ACCEPTED)
+  async refreshAccount(@Query("account") account: string): Promise<any> {
+    this.logger.log(account);
+    try {
+      const my_user = await this.twitterService.refreshAccount(account);
+      if (!my_user.data) {
+        return new Error("couldn't get account detail");
+      }
+      await this.accountService.updateTwitterConfig({
+        account: my_user.data.username,
+        twitter: { ...my_user.data },
+      } as UpdateAccountTwitterDto);
+      return JSON.stringify(my_user);
     } catch (error) {
       this.logger.error(error);
     }

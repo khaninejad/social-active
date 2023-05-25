@@ -76,8 +76,51 @@ describe("TwitterService", () => {
       expect(result).toBeDefined();
     });
 
+    it("should create a new tweet if account input is object id ", async () => {
+      const accountName = "6457fcd36f48c7d96332f8b3";
+      const tweetText = "Hello Twitter!";
+      jest.spyOn(accountService, "getAccount").mockResolvedValue(mockAccount);
+
+      const tweetResponse = { title: "Test Post" };
+      const createTweetMock = jest.fn().mockResolvedValue(tweetResponse);
+
+      const tweetsMock = jest.fn().mockReturnValue({
+        createTweet: createTweetMock,
+      });
+
+      const clientMock = jest.fn().mockReturnValue({
+        tweets: tweetsMock(),
+      });
+
+      (auth.OAuth2User as jest.Mock).mockReturnValue({
+        access_token: mockAccount.token.access_token,
+        refresh_token: mockAccount.token.refresh_token,
+        isAccessTokenExpired: jest.fn().mockReturnValue(false),
+      });
+
+      (Client as jest.Mock).mockImplementation(clientMock);
+
+      const result = await service.tweet(accountName, tweetText);
+
+      expect(loggerSpy).toHaveBeenCalledTimes(1);
+      expect(result).toBeDefined();
+    });
+
     it("should log an error if tweet creation fails", async () => {
       const accountName = "test-account";
+      const tweetText = "Hello Twitter!";
+      jest
+        .spyOn(accountService, "getAccount")
+        .mockRejectedValue(new Error("some error"));
+
+      await service.tweet(accountName, tweetText);
+
+      expect(loggerErrorSpy).toHaveBeenCalledTimes(1);
+      expect(loggerErrorSpy).toHaveBeenCalledWith("getAuthClient {}");
+    });
+
+    it("should log an error if tweet creation fails if accountName is objectId", async () => {
+      const accountName = "6457fcd36f48c7d96332f8b3";
       const tweetText = "Hello Twitter!";
       jest
         .spyOn(accountService, "getAccount")

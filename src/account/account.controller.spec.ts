@@ -9,6 +9,7 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 import { Client, auth } from "twitter-api-sdk";
+import { TwitterService } from "../twitter/twitter.service";
 jest.mock("../app.const");
 
 const account: CreateAccountDto = {
@@ -89,6 +90,13 @@ describe("AccountController", () => {
             updateToken: jest.fn(),
             getAccount: jest.fn(),
             getAll: jest.fn(),
+            getAllWithContents: jest.fn(),
+          },
+        },
+        {
+          provide: TwitterService,
+          useValue: {
+            test: jest.fn(),
           },
         },
       ],
@@ -330,15 +338,15 @@ describe("AccountController", () => {
           account: "account2",
         } as unknown as Account,
       ];
-      jest.spyOn(service, "getAll").mockResolvedValue(allAccounts);
+      jest.spyOn(service, "getAllWithContents").mockResolvedValue(allAccounts);
       const result = await controller.all("1", "10");
-      expect(service.getAll).toHaveBeenCalledWith();
+      expect(service.getAllWithContents).toHaveBeenCalledWith();
       expect(result).toEqual(allAccounts);
     });
 
     it("should throw an error if accountService.getAll() throws an error", async () => {
       jest
-        .spyOn(service, "getAll")
+        .spyOn(service, "getAllWithContents")
         .mockRejectedValue(new Error("getAll failed"));
       await expect(controller.all("1", "10")).rejects.toThrow(
         new HttpException(

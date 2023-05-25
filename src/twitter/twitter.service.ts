@@ -21,9 +21,13 @@ export class TwitterService {
 
   private async getAuthClient(account: string) {
     try {
-      const currentAccount = await this.accountService.getAccountByName(
-        account
-      );
+      let currentAccount;
+      if (this.isMongoId(account)) {
+        currentAccount = await this.accountService.getAccountById(account);
+      } else {
+        currentAccount = await this.accountService.getAccountByName(account);
+      }
+
       const authClient = new auth.OAuth2User({
         client_id: currentAccount.credentials.client_id,
         client_secret: currentAccount.credentials.client_secret,
@@ -42,8 +46,13 @@ export class TwitterService {
       } else {
         this.logger.error("access token is expired");
         const token = await authClient.refreshAccessToken();
-        const updateAccount = { account, token: { ...token.token } };
-        this.accountService.updateToken(updateAccount as UpdateAccountTokenDto);
+        const updateAccount = {
+          account: currentAccount.account,
+          token: { ...token.token },
+        };
+        await this.accountService.updateToken(
+          updateAccount as UpdateAccountTokenDto
+        );
         return authClient;
       }
     } catch (error) {
@@ -70,5 +79,42 @@ export class TwitterService {
       const client = new Client(authClient);
       resolve(client);
     });
+  }
+
+  async refreshAccount(account: string) {
+    try {
+      const authClient = await this.getAuthClient(account);
+      return await this.sendRefreshAccount(authClient);
+    } catch (error) {
+      this.logger.error(`tweet ${JSON.stringify(error as Error)}`);
+    }
+  }
+
+  private async sendRefreshAccount(authClient: auth.OAuth2User) {
+    try {
+      this.client = await this.getClientInstance(authClient);
+
+      const my_user = await this.client.users.findMyUser({
+        "user.fields": [
+          "description",
+          "profile_image_url",
+          "id",
+          "username",
+          "name",
+          "url",
+          "created_at",
+          "location",
+          "verified",
+          "public_metrics",
+        ],
+      });
+      return my_user;
+    } catch (error) {
+      this.logger.error(`refresh Account ${JSON.stringify(error)}`);
+    }
+  }
+
+  isMongoId(str: string): boolean {
+    return /^[0-9a-f]{24}$/.test(str);
   }
 }
