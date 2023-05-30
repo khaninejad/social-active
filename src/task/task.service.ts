@@ -74,7 +74,7 @@ export class TaskService {
   }
   private getCronString(expression: string) {
     if (expression.includes("h")) {
-      return `* * */${expression.replace("h", "")} 9-20 * *`;
+      return `0 */${expression.replace("h", "")} * * *`;
     } else if (expression.includes("m")) {
       return `0 */${expression.replace("m", "")} * * * *`;
     } else {
