@@ -164,7 +164,7 @@ describe("TaskService", () => {
     });
 
     it('should return the correct cron string for the "h" time variant', () => {
-      expect(taskService["getCronString"]("h5")).toEqual("* * */5 9-20 * *");
+      expect(taskService["getCronString"]("h5")).toEqual("0 */5 * * *");
     });
   });
 

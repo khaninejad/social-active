@@ -54,7 +54,7 @@ export class OpenAIService {
         },
         { headers: { "Content-Type": "application/json", charset: "utf-8" } }
       );
-      return completions.data.choices[0].text.trim();
+      return completions?.data?.choices[0]?.text?.trim();
     } catch (error) {
       if (error.response) {
         this.logger.error(error.response.status);
