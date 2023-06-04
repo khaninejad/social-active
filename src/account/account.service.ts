@@ -78,8 +78,19 @@ export class AccountService {
           {
             $lookup: {
               from: "contents",
-              localField: "account",
-              foreignField: "account",
+              let: { account: "$account" },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $eq: ["$account", "$$account"] },
+                    blog: { $exists: true },
+                    tweet: { $exists: true },
+                  },
+                },
+                {
+                  $sort: { created_at: 1 },
+                },
+              ],
               as: "contents",
             },
           },
@@ -89,13 +100,6 @@ export class AccountService {
               preserveNullAndEmptyArrays: true,
             },
           },
-          // {
-          //   $match: {
-          //     "contents.blog": { $exists: true },
-          //     "contents.tweet": { $exists: true },
-          //   },
-          // },
-          { $sort: { "contents.created_at": 1 } },
           {
             $group: {
               _id: "$_id",
@@ -117,8 +121,9 @@ export class AccountService {
             },
           },
         ],
-        { maxTimeMS: 60000, allowDiskUse: true }
+        { allowDiskUse: true }
       )
+      .allowDiskUse(true)
       .exec();
   }
 

@@ -350,7 +350,7 @@ describe("AccountController", () => {
         .mockRejectedValue(new Error("getAll failed"));
       await expect(controller.all("1", "10")).rejects.toThrow(
         new HttpException(
-          "Internal Server error",
+          "Internal Server error Error: getAll failed",
           HttpStatus.INTERNAL_SERVER_ERROR
         )
       );

@@ -55,7 +55,7 @@ export class AccountController {
       return allAccounts;
     } catch (error) {
       throw new HttpException(
-        "Internal Server error",
+        `Internal Server error ${error}`,
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }

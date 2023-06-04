@@ -14,4 +14,5 @@ const ContentSchema = new mongoose.Schema({
 });
 
 ContentSchema.index({ account: 1, title: 1, link: 1 }, { unique: true });
+ContentSchema.index({ created_at: 1 });
 export default ContentSchema;
