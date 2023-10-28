@@ -10,6 +10,7 @@ import { CrawlerModule } from "./crawler/crawler.module";
 import { WordpressModule } from "./wordpress/wordpress.module";
 import { OpenaiModule } from "./openai/openai.module";
 import { TwitterModule } from "./twitter/twitter.module";
+import { InstagramModule } from "./instagram/instagram.module";
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { TwitterModule } from "./twitter/twitter.module";
     WordpressModule,
     OpenaiModule,
     TwitterModule,
+    InstagramModule,
   ],
   controllers: [],
   providers: [TaskService],
