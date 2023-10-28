@@ -10,7 +10,7 @@ services:
       - '27017:27017'
 
   social-active:
-    image: khaninejad/social-active:latest
+    image: khaninejad/social-active:0.0.18
     command: npm run start:prod
     restart: always
     ports:
