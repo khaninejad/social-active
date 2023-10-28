@@ -44,6 +44,7 @@ describe("TaskService", () => {
 
     contentService = {
       createMany: jest.fn(),
+      deleteOldContent: jest.fn(),
     } as unknown as ContentService;
 
     eventEmitter = {
@@ -164,7 +165,8 @@ describe("TaskService", () => {
     });
 
     it('should return the correct cron string for the "h" time variant', () => {
-      expect(taskService["getCronString"]("h5")).toEqual("0 */5 * * *");
+      Math.random = jest.fn(() => 0.5);
+      expect(taskService["getCronString"]("h5")).toEqual("30 */5 * * *");
     });
   });
 

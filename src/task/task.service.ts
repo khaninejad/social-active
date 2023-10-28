@@ -19,6 +19,7 @@ export class TaskService {
     private eventEmitter: EventEmitter2
   ) {
     this.fetchFeeds().then(() => this.logger.log("tasks started"));
+    this.deleteOldContent();
   }
   async fetchFeeds() {
     const accounts = await this.accountService.getAll();
@@ -29,12 +30,29 @@ export class TaskService {
     });
   }
 
+  async deleteOldContent() {
+    const contents = await this.contentService.deleteOldContent(30);
+    console.log(`contents removed ${contents}`);
+  }
+  getRandomInt(min: number, max: number): number {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+  generateRandomDateTime(): Date {
+    const now = new Date();
+    const randomSeconds = this.getRandomInt(1, 120);
+
+    // Calculate the next time
+    const nextTime = new Date(now.getTime() + randomSeconds * 1000); // Convert seconds to milliseconds
+
+    return nextTime;
+  }
+
   addCronJob(name: string, time: string, feeds: string[]): CronJob {
     this.logger.warn(`starting ${name}`);
+
     const job = new CronJob(this.getCronString(time), async () => {
       await this.dispatchJob(time, name, feeds);
     });
-
     this.schedulerRegistry.addCronJob(name, job);
     job.start();
 
@@ -73,10 +91,11 @@ export class TaskService {
     });
   }
   private getCronString(expression: string) {
+    const randomMinute = Math.floor(Math.random() * 60);
     if (expression.includes("h")) {
-      return `0 */${expression.replace("h", "")} * * *`;
+      return `${randomMinute} */${expression.replace("h", "")} * * *`;
     } else if (expression.includes("m")) {
-      return `0 */${expression.replace("m", "")} * * * *`;
+      return `${randomMinute} */${expression.replace("m", "")} * * * *`;
     } else {
       throw new Error("invalid time variant ");
     }
