@@ -131,7 +131,7 @@ describe("CrawlerService", () => {
       jest.spyOn(axios, "get").mockRejectedValue(new Error("error"));
       await service.getFinalUrl(url);
 
-      expect(loggerErrorSpy).toHaveBeenCalledWith(new Error("error"));
+      expect(loggerErrorSpy).toHaveBeenCalledWith("getFinalUrl Error: error");
     });
   });
   describe("extractGoogleNewsUrl", () => {

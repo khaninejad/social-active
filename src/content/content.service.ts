@@ -52,6 +52,21 @@ export class ContentService {
     return this.contentModel.findById({ _id: id }).exec();
   }
 
+  async deleteOldContent(day: number): Promise<number> {
+    try {
+      const today = new Date();
+      today.setDate(today.getDate() - day);
+
+      const deletedContent = await this.contentModel.deleteMany({
+        created_at: { $lt: today },
+      });
+
+      return deletedContent.deletedCount;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async updateCrawl(updateCrawlDto: UpdateCrawlDto): Promise<Content> {
     Logger.debug(updateCrawlDto.id);
     const updated = this.contentModel.findByIdAndUpdate(

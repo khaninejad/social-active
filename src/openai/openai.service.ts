@@ -117,7 +117,7 @@ export class OpenAIService {
   calculateMaxToken(str): number {
     const currentTokenCount = this.countTokens(str);
     this.logger.log(`currentTokenCount ${currentTokenCount}`);
-    const request_token = 4097 - (currentTokenCount + 800);
+    const request_token = 4097 - (currentTokenCount + 400);
     this.logger.log(`request_token ${request_token}`);
     return request_token;
   }

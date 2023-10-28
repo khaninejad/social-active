@@ -77,7 +77,7 @@ describe("handleWordpressPublishedEvent", () => {
       });
 
       await listener.handleWordpressPublishedEvent(generationFinishedEventMock);
-      expect(loggerSpy).toHaveBeenCalledTimes(3);
+      expect(loggerSpy).toHaveBeenCalledTimes(2);
       expect(loggerWarnSpy).toHaveBeenCalledTimes(0);
       expect(loggerSpy).toHaveBeenCalledWith("Listener Finished");
     });

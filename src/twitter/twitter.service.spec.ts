@@ -116,7 +116,9 @@ describe("TwitterService", () => {
       await service.tweet(accountName, tweetText);
 
       expect(loggerErrorSpy).toHaveBeenCalledTimes(1);
-      expect(loggerErrorSpy).toHaveBeenCalledWith("getAuthClient {}");
+      expect(loggerErrorSpy).toHaveBeenCalledWith(
+        "getAuthClient test-account {}"
+      );
     });
 
     it("should log an error if tweet creation fails if accountName is objectId", async () => {
@@ -129,7 +131,9 @@ describe("TwitterService", () => {
       await service.tweet(accountName, tweetText);
 
       expect(loggerErrorSpy).toHaveBeenCalledTimes(1);
-      expect(loggerErrorSpy).toHaveBeenCalledWith("getAuthClient {}");
+      expect(loggerErrorSpy).toHaveBeenCalledWith(
+        `getAuthClient ${accountName} {}`
+      );
     });
 
     it("should log an error if tweet creation fails", async () => {

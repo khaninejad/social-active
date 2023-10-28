@@ -1,5 +1,3 @@
-
-
 export interface UpdateInstagramDto {
   readonly account: string;
   readonly following: string;

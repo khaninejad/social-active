@@ -6,15 +6,16 @@ import { CrawlerDataDto } from "./dto/crawler-data.dto";
 @Injectable()
 export class CrawlerService {
   private readonly logger: Logger = new Logger(CrawlerService.name);
+  private readonly user_agent =
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.75.14 (KHTML, like Gecko) Version/7.0.3 Safari/7046A194A";
   async crawl(url: string): Promise<CrawlerDataDto> {
     try {
       const ultimateUrl = await this.getFinalUrl(url);
-      this.logger.debug(ultimateUrl);
+      this.logger.debug(`ultimateUrl ${ultimateUrl}`);
 
       const htmlResponse = await axios.get(ultimateUrl, {
         headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36",
+          "User-Agent": this.user_agent,
         },
       });
       const html = htmlResponse.data;
@@ -53,8 +54,7 @@ export class CrawlerService {
         },
         withCredentials: true,
         headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36",
+          "User-Agent": this.user_agent,
           Cookie: "CONSENT=YES+cb.%s-14-p0.en+F+941;",
         },
       });
@@ -67,7 +67,7 @@ export class CrawlerService {
         return url;
       }
     } catch (error) {
-      this.logger.error(error);
+      this.logger.error(`getFinalUrl ${error}`);
     }
   }
 

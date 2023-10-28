@@ -8,10 +8,12 @@ export class TwitterService {
   private client: Client;
   STATE = "my-state";
   private readonly logger = new Logger(TwitterService.name);
+  accountName = "";
   constructor(private readonly accountService: AccountService) {}
 
   async tweet(account: string, text: string) {
     try {
+      this.accountName = account;
       const authClient = await this.getAuthClient(account);
       return await this.sendTweet(authClient, text);
     } catch (error) {
@@ -56,21 +58,25 @@ export class TwitterService {
         return authClient;
       }
     } catch (error) {
-      this.logger.error(`getAuthClient ${JSON.stringify(error as Error)}`);
+      this.logger.error(
+        `getAuthClient ${this.accountName} ${JSON.stringify(error as Error)}`
+      );
     }
   }
 
   private async sendTweet(authClient: auth.OAuth2User, text: string) {
     try {
       this.client = await this.getClientInstance(authClient);
-      this.logger.log(`tweet: ${text}`);
+      this.logger.log(`tweet(${this.accountName}): ${text}`);
 
       const tweet = await this.client.tweets.createTweet({
         text: text,
       });
       return tweet;
     } catch (error) {
-      this.logger.error(`sendTweet sendTweet ${JSON.stringify(error)}`);
+      this.logger.error(
+        `sendTweet ${this.accountName} $ ${JSON.stringify(error)}`
+      );
     }
   }
 
@@ -86,7 +92,9 @@ export class TwitterService {
       const authClient = await this.getAuthClient(account);
       return await this.sendRefreshAccount(authClient);
     } catch (error) {
-      this.logger.error(`tweet ${JSON.stringify(error as Error)}`);
+      this.logger.error(
+        `tweet ${this.accountName} ${JSON.stringify(error as Error)}`
+      );
     }
   }
 

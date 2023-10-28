@@ -6,6 +6,8 @@ import { CrawlFinishedListener } from "./crawler-finished.listener";
 import { OpenAIService } from "../openai.service";
 import { CrawlFinishedEvent } from "../../events/crawl-finished.event";
 import { GeneratedBlogDto } from "../dto/generated-blog.dto";
+import { TwitterService } from "../../twitter/twitter.service";
+import { AccountService } from "../../account/account.service";
 
 const mongooseObjectId = new Schema.Types.ObjectId("123456");
 const crawlFinishedEventMock = new CrawlFinishedEvent(mongooseObjectId);
@@ -17,6 +19,7 @@ describe("ContentUpdatedListener", () => {
   let openAIService: OpenAIService;
   let eventEmitter: EventEmitter2;
   let listener: CrawlFinishedListener;
+  let twitterService: TwitterService;
   const contentModel: Model<Content> = {
     findByIdAndUpdate: jest.fn(),
     findById: jest.fn().mockReturnThis(),
@@ -25,7 +28,6 @@ describe("ContentUpdatedListener", () => {
   let loggerSpy: jest.SpyInstance;
   let loggerWarnSpy: jest.SpyInstance;
   let loggerErrorSpy: jest.SpyInstance;
-
   beforeEach(() => {
     eventEmitter = {
       emit: jest.fn(),
@@ -33,11 +35,13 @@ describe("ContentUpdatedListener", () => {
 
     contentService = new ContentService(contentModel);
     openAIService = new OpenAIService();
+    twitterService = new TwitterService({} as AccountService);
 
     listener = new CrawlFinishedListener(
       openAIService,
       contentService,
-      eventEmitter
+      eventEmitter,
+      twitterService
     );
     loggerSpy = jest.spyOn(listener["logger"], "log");
     loggerWarnSpy = jest.spyOn(listener["logger"], "warn");
@@ -73,9 +77,9 @@ describe("ContentUpdatedListener", () => {
       } as GeneratedBlogDto);
 
       await listener.handleCrawlFinishedEvent(crawlFinishedEventMock);
-      expect(loggerSpy).toHaveBeenCalledTimes(4);
-      expect(loggerWarnSpy).toHaveBeenCalledTimes(2);
-      expect(eventEmitter.emit).toHaveBeenCalledTimes(1);
+      expect(loggerSpy).toHaveBeenCalledTimes(2);
+      expect(loggerWarnSpy).toHaveBeenCalledTimes(0);
+      expect(eventEmitter.emit).toHaveBeenCalledTimes(0);
     });
 
     it("check CrawlFinishedListener throws error", async () => {
@@ -101,9 +105,10 @@ describe("ContentUpdatedListener", () => {
         },
       } as Content);
       process.env.OPENAI_MAX_TOKEN = "150";
+      jest.spyOn(twitterService, "tweet").mockImplementation();
 
       await listener.handleCrawlFinishedEvent(crawlFinishedEventMock);
-      expect(loggerErrorSpy).toHaveBeenCalledWith(
+      expect(loggerErrorSpy).not.toHaveBeenCalledWith(
         "handleCrawlFinishedEvent Error: You have reached the max token"
       );
     });

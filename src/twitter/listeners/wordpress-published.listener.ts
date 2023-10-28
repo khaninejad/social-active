@@ -18,20 +18,20 @@ export class WordpressPublishedListener {
     try {
       const content = await this.contentService.getContentById(event.id);
       if (content) {
-        const tweet = await this.twitterService.tweet(
-          content.account,
-          content.blog.title + " " + content.blog.link
-        );
-        if (tweet) {
-          await this.contentService.updateTweet({
-            id: content.id,
-            Tweet: {
-              id: tweet.data.id,
-              text: tweet.data.text,
-            },
-          });
-          this.logger.log(`tweet published ${JSON.stringify(tweet.data)} post`);
-        }
+        // const tweet = await this.twitterService.tweet(
+        //   content.account,
+        //   content.blog.title + " " + content.blog.link
+        // );
+        // if (tweet) {
+        //   await this.contentService.updateTweet({
+        //     id: content.id,
+        //     Tweet: {
+        //       id: tweet.data.id,
+        //       text: tweet.data.text,
+        //     },
+        //   });
+        //   this.logger.log(`tweet published ${JSON.stringify(tweet.data)} post`);
+        // }
       }
     } catch (error) {
       this.logger.error(error);
